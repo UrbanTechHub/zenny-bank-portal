@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222 47% 23%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 348 83% 58%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  * { @apply border-border; -webkit-font-smoothing: antialiased; }
+  body { @apply bg-background text-foreground; font-family: 'Inter', sans-serif; overflow-x: hidden; scroll-behavior: smooth; }
+  h1, h2, h3, h4, h5 { font-family: 'Playfair Display', serif; }
+  html { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+  .container { max-width: 100%; padding-left: 1rem; padding-right: 1rem; }
+  @media (min-width: 640px) { .container { padding-left: 1.5rem; padding-right: 1.5rem; } }
+  @media (min-width: 1024px) { .container { padding-left: 2rem; padding-right: 2rem; } }
+}
+
+@layer components {
+  .hero-section {
+    background: linear-gradient(135deg, rgba(10, 36, 99, 0.92) 0%, rgba(4, 30, 66, 0.95) 100%);
+    background-size: 100% 100%;
+    animation: gradientAnimation 15s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-section::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="20" fill="rgba(255,255,255,0.03)"/><circle cx="80" cy="30" r="15" fill="rgba(255,255,255,0.02)"/><circle cx="40" cy="80" r="25" fill="rgba(255,255,255,0.01)"/></svg>');
+    background-size: 80px 80px;
+    z-index: 0;
+  }
+  .bank-card { @apply relative overflow-hidden rounded-xl transition-all duration-500; transform-style: preserve-3d; transform: perspective(1000px); }
+  .bank-card::before { content: ''; @apply absolute inset-0 opacity-0 transition-opacity duration-500; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.2) 0%, transparent 50%); }
+  .bank-card:hover::before { @apply opacity-100; }
+  .glass-effect { @apply bg-white bg-opacity-10 backdrop-blur-sm border border-white border-opacity-20; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
+  .text-shadow { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+  .btn-hover-effect { @apply relative overflow-hidden; }
+  .btn-hover-effect::after { content: ''; @apply absolute inset-0 bg-white opacity-0 transition-opacity duration-300; }
+  .btn-hover-effect:hover::after { @apply opacity-10; }
+  .feature-card { @apply rounded-xl overflow-hidden transition-all duration-300 ease-in-out; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transform: translateY(0); }
+  .feature-card:hover { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); transform: translateY(-5px); }
+  .animated-bg { background-size: 200% 200%; animation: gradientAnimation 15s ease infinite; }
+  .reveal-content { opacity: 0; transform: translateY(20px); }
+  .revealed { animation: revealAnimation 0.8s ease forwards; }
+  .highlight-text { @apply relative inline-block; }
+  .highlight-text::after { content: ''; @apply absolute bottom-0 left-0 w-full h-[8px] bg-bank-gold bg-opacity-30 -z-10; transform: translateY(-4px); }
+  .animate-float { animation: floating 6s ease-in-out infinite; }
+  .animate-shimmer { animation: shimmer 2.5s linear infinite; }
+  .interactive-card { transition: all 0.3s ease; transform: translateZ(0); transform-style: preserve-3d; }
+  .interactive-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); }
+  @media (max-width: 768px) {
+    .interactive-card:hover { transform: none; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+    .feature-card:hover { transform: translateY(0); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+  }
+}
+
+@keyframes gradientAnimation { 0% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } 100% { background-position: 0% 0%; } }
+@keyframes revealAnimation { to { opacity: 1; transform: translateY(0); } }
+@keyframes floating { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: 0 0; } }
+
+@media (max-width: 640px) {
+  .hero-section { padding-top: 1rem; padding-bottom: 1rem; }
+  h1 { font-size: 1.5rem; line-height: 2rem; }
+  h2 { font-size: 1.25rem; line-height: 1.75rem; }
+}
+
+body { width: 100vw; max-width: 100%; overflow-x: hidden; }
+.min-h-screen { min-height: 100vh; min-height: 100dvh; }
