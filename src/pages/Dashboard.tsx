@@ -509,20 +509,35 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <Tabs value={transferType} onValueChange={(v) => setTransferType(v as any)}>
-              <TabsList className="w-full bg-black border border-gray-800">
-                <TabsTrigger value="domestic" className="flex-1 data-[state=active]:bg-bank-blue data-[state=active]:text-white text-gray-400 text-xs">
-                  🏦 {language === 'vi' ? 'Nội địa' : 'Domestic'}
+              <TabsList className="w-full bg-gray-900 border border-gray-800 p-1 h-auto grid grid-cols-3 gap-1">
+                <TabsTrigger
+                  value="domestic"
+                  className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-bank-darkBlue data-[state=active]:to-bank-blue data-[state=active]:text-white data-[state=active]:shadow-md text-gray-400 text-xs sm:text-sm font-medium py-2.5 rounded-md flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Globe className="w-4 h-4" />
+                  <span>{language === 'vi' ? 'Nội địa' : 'Domestic'}</span>
                 </TabsTrigger>
-                <TabsTrigger value="international" className="flex-1 data-[state=active]:bg-bank-blue data-[state=active]:text-white text-gray-400 text-xs">
-                  🌍 {language === 'vi' ? 'Quốc tế' : 'International'}
+                <TabsTrigger
+                  value="international"
+                  className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-bank-darkBlue data-[state=active]:to-bank-blue data-[state=active]:text-white data-[state=active]:shadow-md text-gray-400 text-xs sm:text-sm font-medium py-2.5 rounded-md flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{language === 'vi' ? 'Quốc tế' : 'International'}</span>
                 </TabsTrigger>
-                <TabsTrigger value="wire" className="flex-1 data-[state=active]:bg-bank-blue data-[state=active]:text-white text-gray-400 text-xs">
-                  ⚡ Wire/TT
+                <TabsTrigger
+                  value="wire"
+                  className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-bank-darkBlue data-[state=active]:to-bank-blue data-[state=active]:text-white data-[state=active]:shadow-md text-gray-400 text-xs sm:text-sm font-medium py-2.5 rounded-md flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Wire / TT</span>
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="domestic">{renderDomesticForm()}</TabsContent>
-              <TabsContent value="international">{renderInternationalForm()}</TabsContent>
-              <TabsContent value="wire">{renderWireForm()}</TabsContent>
+
+              <div className="mt-5 rounded-xl border border-gray-800 bg-gray-900/40 p-4 sm:p-5">
+                <TabsContent value="domestic" className="mt-0">{renderDomesticForm()}</TabsContent>
+                <TabsContent value="international" className="mt-0">{renderInternationalForm()}</TabsContent>
+                <TabsContent value="wire" className="mt-0">{renderWireForm()}</TabsContent>
+              </div>
             </Tabs>
             <Button onClick={handleTransferSubmit} disabled={!profile?.is_approved || profile?.transfer_blocked}
               className="w-full h-11 bg-gradient-to-r from-bank-darkBlue to-bank-blue text-white font-semibold">
@@ -785,44 +800,55 @@ const Dashboard = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-black">
-        <Sidebar className="border-r border-gray-800 bg-gray-950">
-          <SidebarHeader className="p-4 border-b border-gray-800">
+        <Sidebar className="border-r border-gray-900 bg-black [&>div]:bg-black">
+          <SidebarHeader className="p-4 border-b border-gray-900 bg-black">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-bank-gold to-amber-500 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md">VTB</div>
-              <div>
-                <p className="font-bold text-sm text-white">Việt Trust Bank</p>
-                <p className="text-xs text-gray-400 truncate max-w-[140px]">{displayName}</p>
+              <div className="min-w-0">
+                <p className="font-semibold text-sm text-white truncate">Việt Trust Bank</p>
+                <p className="text-xs text-gray-500 truncate">{displayName}</p>
               </div>
             </div>
           </SidebarHeader>
-          <SidebarContent className="px-2 py-3">
+          <SidebarContent className="px-2 py-3 bg-black">
             <SidebarMenuContent menuItems={menuItems} activeTab={activeTab} onSelectTab={setActiveTab} />
           </SidebarContent>
-          <div className="p-3 border-t border-gray-800 space-y-2">
-            <Button variant="ghost" size="sm" onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')} className="w-full justify-start text-sm text-gray-300 hover:bg-gray-900">
+          <div className="p-3 border-t border-gray-900 bg-black space-y-1">
+            <Button variant="ghost" size="sm" onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')} className="w-full justify-start text-sm text-gray-300 hover:bg-gray-900 hover:text-white">
               <Globe className="w-4 h-4 mr-2" /> {language === 'vi' ? 'English' : 'Tiếng Việt'}
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full justify-start text-sm text-red-400 hover:text-red-300 hover:bg-red-900/30">
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full justify-start text-sm text-red-400 hover:text-red-300 hover:bg-red-950/40">
               <LogOut className="w-4 h-4 mr-2" /> {language === 'vi' ? 'Đăng xuất' : 'Logout'}
             </Button>
           </div>
         </Sidebar>
-        <SidebarInset className="flex-1">
-          <header className="sticky top-0 z-10 bg-gray-950/80 backdrop-blur-md border-b border-gray-800 px-4 sm:px-6 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger className="text-gray-300" />
-                <h1 className="text-lg font-semibold text-white">{menuItems.find(m => m.id === activeTab)?.title || 'Overview'}</h1>
+        <SidebarInset className="flex-1 bg-black">
+          <header className="sticky top-0 z-10 bg-black/95 backdrop-blur-md border-b border-gray-900 px-4 sm:px-6 py-3.5">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <SidebarTrigger className="text-gray-300 hover:text-white shrink-0" />
+                <div className="hidden sm:flex w-9 h-9 bg-gradient-to-br from-bank-gold to-amber-500 rounded-lg items-center justify-center text-white font-bold text-xs shadow-md shrink-0">
+                  VTB
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-base sm:text-lg font-semibold text-white truncate leading-tight">
+                    {menuItems.find(m => m.id === activeTab)?.title || 'Overview'}
+                  </h1>
+                  <p className="text-[11px] text-gray-500 truncate hidden sm:block">Việt Trust Bank · {language === 'vi' ? 'Ngân hàng số' : 'Digital Banking'}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="relative text-gray-300">
+              <div className="flex items-center gap-2 shrink-0">
+                <Button variant="ghost" size="icon" className="relative text-gray-300 hover:text-white hover:bg-gray-900 h-9 w-9">
                   <Bell className="w-5 h-5" />
+                  <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-bank-gold rounded-full" />
                 </Button>
-                <div className="w-8 h-8 bg-gradient-to-br from-bank-blue to-bank-lightBlue rounded-full flex items-center justify-center text-white text-sm font-bold">{userInitial}</div>
+                <div className="w-9 h-9 bg-gradient-to-br from-bank-blue to-bank-lightBlue rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md ring-2 ring-gray-900">
+                  {userInitial}
+                </div>
               </div>
             </div>
           </header>
-          <main className="p-4 sm:p-6">{renderContent()}</main>
+          <main className="p-4 sm:p-6 max-w-7xl mx-auto w-full">{renderContent()}</main>
         </SidebarInset>
       </div>
     </SidebarProvider>
