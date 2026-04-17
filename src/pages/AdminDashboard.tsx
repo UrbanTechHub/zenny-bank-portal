@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   const [editingUser, setEditingUser] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '', login_otp: '' });
 
   const [creditDebitUser, setCreditDebitUser] = useState<any>(null);
   const [cdAmount, setCdAmount] = useState('');
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
 
   const handleEditUser = (user: any) => {
     setEditingUser(user);
-    setEditForm({ full_name: user.full_name || '', phone: user.phone || '' });
+    setEditForm({ full_name: user.full_name || '', phone: user.phone || '', login_otp: user.login_otp || '' });
   };
 
   const handleSaveEdit = async () => {
@@ -117,6 +117,7 @@ const AdminDashboard = () => {
     const { error } = await supabase.from('profiles').update({
       full_name: editForm.full_name,
       phone: editForm.phone,
+      login_otp: editForm.login_otp ? editForm.login_otp.trim() : null,
     }).eq('user_id', editingUser.user_id);
     if (error) { toast.error(error.message); return; }
     toast.success(language === 'vi' ? 'Đã cập nhật!' : 'Updated!');
@@ -339,6 +340,23 @@ const AdminDashboard = () => {
                   <div className="space-y-1">
                     <label className="text-sm text-gray-400">{language === 'vi' ? 'Số điện thoại' : 'Phone'}</label>
                     <Input value={editForm.phone} onChange={(e) => setEditForm(p => ({...p, phone: e.target.value}))} className="bg-gray-700 border-gray-600 text-white" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm text-gray-400 flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      {language === 'vi' ? 'Mã OTP đăng nhập' : 'Login OTP code'}
+                    </label>
+                    <Input
+                      value={editForm.login_otp}
+                      onChange={(e) => setEditForm(p => ({...p, login_otp: e.target.value}))}
+                      className="bg-gray-700 border-gray-600 text-white font-mono tracking-widest"
+                      placeholder={language === 'vi' ? 'Để trống để xóa' : 'Leave blank to clear'}
+                    />
+                    <p className="text-xs text-gray-500">
+                      {language === 'vi'
+                        ? 'Người dùng nhập mã này sau khi đăng nhập bằng mật khẩu.'
+                        : 'User enters this code after password login.'}
+                    </p>
                   </div>
                   <div className="flex gap-2">
                     <Button onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700">{language === 'vi' ? 'Lưu' : 'Save'}</Button>
