@@ -827,7 +827,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <SidebarTrigger className="text-gray-300 hover:text-white shrink-0" />
-                <div className="hidden sm:block w-9 h-9 bg-gradient-to-br from-bank-gold to-amber-500 rounded-lg items-center justify-center text-white font-bold text-xs shadow-md flex shrink-0">
+                <div className="hidden sm:flex w-9 h-9 bg-gradient-to-br from-bank-gold to-amber-500 rounded-lg items-center justify-center text-white font-bold text-xs shadow-md shrink-0">
                   VTB
                 </div>
                 <div className="min-w-0">
