@@ -55,6 +55,7 @@ export type Database = {
           id: string
           is_approved: boolean
           is_locked: boolean
+          login_otp: string | null
           phone: string | null
           transfer_blocked: boolean
           updated_at: string
@@ -67,6 +68,7 @@ export type Database = {
           id?: string
           is_approved?: boolean
           is_locked?: boolean
+          login_otp?: string | null
           phone?: string | null
           transfer_blocked?: boolean
           updated_at?: string
@@ -79,6 +81,7 @@ export type Database = {
           id?: string
           is_approved?: boolean
           is_locked?: boolean
+          login_otp?: string | null
           phone?: string | null
           transfer_blocked?: boolean
           updated_at?: string
