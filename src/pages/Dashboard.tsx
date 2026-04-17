@@ -270,52 +270,85 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-      <div className="bg-gradient-to-r from-bank-darkBlue to-bank-blue rounded-2xl p-6 text-white">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <p className="text-white/70 text-sm">{t('dashboard.welcome')}</p>
-            <h2 className="text-2xl font-bold mt-1">{displayName}</h2>
-            <p className="text-white/60 text-xs mt-1">{accountNumber}</p>
-            {!profile?.is_approved && (
-              <div className="mt-2 flex items-center gap-1 text-amber-300 text-xs">
-                <AlertTriangle className="w-3 h-3" />
-                {language === 'vi' ? 'Tài khoản đang chờ duyệt' : 'Account pending approval'}
-              </div>
-            )}
-          </div>
-          <div className="text-left sm:text-right">
-            <div className="flex items-center gap-2 mb-1">
-              <p className="text-white/70 text-sm">{t('dashboard.total_balance')}</p>
-              <button onClick={() => setShowBalance(!showBalance)} className="text-white/70 hover:text-white">
-                {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              </button>
+
+      {/* Balance Hero — inspired by reference */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-bank-darkBlue via-bank-blue to-bank-lightBlue p-6 text-white shadow-xl">
+        <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+        <div className="absolute -left-10 -bottom-20 w-56 h-56 rounded-full bg-bank-gold/20 blur-3xl pointer-events-none" />
+
+        <div className="relative flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center font-semibold">
+              {userInitial}
             </div>
-            <p className="text-3xl font-bold">{showBalance ? formatVND(balance) : '••••••••'}</p>
+            <div>
+              <p className="text-white/70 text-xs">{t('dashboard.welcome')}</p>
+              <p className="font-semibold text-sm leading-tight">{displayName}</p>
+            </div>
           </div>
+          <button className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center hover:bg-white/25 transition">
+            <Bell className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-1">
+            <p className="text-white/70 text-sm">{t('dashboard.total_balance')}</p>
+            <button onClick={() => setShowBalance(!showBalance)} className="text-white/70 hover:text-white">
+              {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-4xl sm:text-5xl font-bold tracking-tight">{showBalance ? formatVND(balance) : '••••••••'}</p>
+          <p className="text-white/60 text-xs mt-2 font-mono">{accountNumber}</p>
+          {!profile?.is_approved && (
+            <div className="mt-3 inline-flex items-center gap-1 text-amber-200 text-xs bg-amber-500/15 border border-amber-300/30 rounded-full px-3 py-1">
+              <AlertTriangle className="w-3 h-3" />
+              {language === 'vi' ? 'Tài khoản đang chờ duyệt' : 'Account pending approval'}
+            </div>
+          )}
+        </div>
+
+        {/* Account filter chips */}
+        <div className="relative mt-5 flex flex-wrap gap-2">
+          {[
+            { key: 'all', label: language === 'vi' ? 'Tất cả' : 'All accounts' },
+            { key: 'checking', label: language === 'vi' ? 'Thanh toán' : 'Checking' },
+            { key: 'savings', label: language === 'vi' ? 'Tiết kiệm' : 'Savings' },
+          ].map((chip, i) => (
+            <button
+              key={chip.key}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition border ${
+                i === 0
+                  ? 'bg-white text-bank-darkBlue border-white shadow-sm'
+                  : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <Card className="border-0 shadow-md bg-gray-950 border-gray-800">
-        <CardHeader className="pb-3"><CardTitle className="text-lg text-white">{language === 'vi' ? 'Thao tác nhanh' : 'Quick Actions'}</CardTitle></CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { icon: Send, label: language === 'vi' ? 'Chuyển tiền' : 'Transfer', id: 'transfer', color: 'from-bank-blue to-bank-lightBlue' },
-              { icon: History, label: language === 'vi' ? 'Lịch sử' : 'History', id: 'history', color: 'from-purple-500 to-violet-500' },
-              { icon: CreditCard, label: language === 'vi' ? 'Thẻ' : 'Cards', id: 'cards', color: 'from-bank-gold to-amber-500' },
-              { icon: QrCode, label: language === 'vi' ? 'QR Thanh toán' : 'QR Payment', id: 'qr', color: 'from-green-500 to-emerald-500' },
-            ].map((action) => (
-              <button key={action.id} onClick={() => setActiveTab(action.id)}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-900/50 transition-colors group">
-                <div className={`w-12 h-12 bg-gradient-to-br ${action.color} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
-                  <action.icon className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xs font-medium text-gray-300">{action.label}</span>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Quick action icons row */}
+      <div className="grid grid-cols-4 gap-3">
+        {[
+          { icon: Send, label: language === 'vi' ? 'Chuyển' : 'Transfer', id: 'transfer', color: 'from-bank-blue to-bank-lightBlue' },
+          { icon: History, label: language === 'vi' ? 'Lịch sử' : 'History', id: 'history', color: 'from-purple-500 to-violet-500' },
+          { icon: CreditCard, label: language === 'vi' ? 'Thẻ' : 'Cards', id: 'cards', color: 'from-bank-gold to-amber-500' },
+          { icon: QrCode, label: language === 'vi' ? 'QR' : 'QR Pay', id: 'qr', color: 'from-green-500 to-emerald-500' },
+        ].map((action) => (
+          <button
+            key={action.id}
+            onClick={() => setActiveTab(action.id)}
+            className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-gray-950 border border-gray-800 hover:border-bank-lightBlue/40 hover:bg-gray-900/70 transition group"
+          >
+            <div className={`w-11 h-11 bg-gradient-to-br ${action.color} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+              <action.icon className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-[11px] font-medium text-gray-300 text-center leading-tight">{action.label}</span>
+          </button>
+        ))}
+      </div>
 
       <Card className="border-0 shadow-md bg-gray-950 border-gray-800">
         <CardHeader className="pb-3">
