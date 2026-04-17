@@ -509,20 +509,35 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <Tabs value={transferType} onValueChange={(v) => setTransferType(v as any)}>
-              <TabsList className="w-full bg-black border border-gray-800">
-                <TabsTrigger value="domestic" className="flex-1 data-[state=active]:bg-bank-blue data-[state=active]:text-white text-gray-400 text-xs">
-                  🏦 {language === 'vi' ? 'Nội địa' : 'Domestic'}
+              <TabsList className="w-full bg-gray-900 border border-gray-800 p-1 h-auto grid grid-cols-3 gap-1">
+                <TabsTrigger
+                  value="domestic"
+                  className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-bank-darkBlue data-[state=active]:to-bank-blue data-[state=active]:text-white data-[state=active]:shadow-md text-gray-400 text-xs sm:text-sm font-medium py-2.5 rounded-md flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Globe className="w-4 h-4" />
+                  <span>{language === 'vi' ? 'Nội địa' : 'Domestic'}</span>
                 </TabsTrigger>
-                <TabsTrigger value="international" className="flex-1 data-[state=active]:bg-bank-blue data-[state=active]:text-white text-gray-400 text-xs">
-                  🌍 {language === 'vi' ? 'Quốc tế' : 'International'}
+                <TabsTrigger
+                  value="international"
+                  className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-bank-darkBlue data-[state=active]:to-bank-blue data-[state=active]:text-white data-[state=active]:shadow-md text-gray-400 text-xs sm:text-sm font-medium py-2.5 rounded-md flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{language === 'vi' ? 'Quốc tế' : 'International'}</span>
                 </TabsTrigger>
-                <TabsTrigger value="wire" className="flex-1 data-[state=active]:bg-bank-blue data-[state=active]:text-white text-gray-400 text-xs">
-                  ⚡ Wire/TT
+                <TabsTrigger
+                  value="wire"
+                  className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-bank-darkBlue data-[state=active]:to-bank-blue data-[state=active]:text-white data-[state=active]:shadow-md text-gray-400 text-xs sm:text-sm font-medium py-2.5 rounded-md flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Wire / TT</span>
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="domestic">{renderDomesticForm()}</TabsContent>
-              <TabsContent value="international">{renderInternationalForm()}</TabsContent>
-              <TabsContent value="wire">{renderWireForm()}</TabsContent>
+
+              <div className="mt-5 rounded-xl border border-gray-800 bg-gray-900/40 p-4 sm:p-5">
+                <TabsContent value="domestic" className="mt-0">{renderDomesticForm()}</TabsContent>
+                <TabsContent value="international" className="mt-0">{renderInternationalForm()}</TabsContent>
+                <TabsContent value="wire" className="mt-0">{renderWireForm()}</TabsContent>
+              </div>
             </Tabs>
             <Button onClick={handleTransferSubmit} disabled={!profile?.is_approved || profile?.transfer_blocked}
               className="w-full h-11 bg-gradient-to-r from-bank-darkBlue to-bank-blue text-white font-semibold">
