@@ -852,8 +852,6 @@ const Dashboard = () => {
         </SidebarInset>
       </div>
     </SidebarProvider>
-      </div>
-    </SidebarProvider>
   );
 };
 
