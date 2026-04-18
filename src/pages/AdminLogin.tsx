@@ -92,7 +92,6 @@ const AdminLogin = () => {
                     className="pl-10 h-11 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500 focus:border-red-500"
                     placeholder="admin" required />
                 </div>
-                <p className="text-xs text-gray-500">Example: "admin" → admin@admin.local</p>
               </div>
               <div className="space-y-2">
                 <Label className="text-gray-300">{t('auth.password')}</Label>

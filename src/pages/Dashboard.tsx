@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
+import jsPDF from 'jspdf';
 
 /* ──────────── Sidebar Menu Content ──────────── */
 const SidebarMenuContent = ({ menuItems, activeTab, onSelectTab }: { menuItems: any[]; activeTab: string; onSelectTab: (id: string) => void }) => {
@@ -167,10 +168,6 @@ const Dashboard = () => {
   };
 
   const handleTransferSubmit = async () => {
-    if (profile?.transfer_blocked) {
-      toast.error(language === 'vi' ? 'Chức năng chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.');
-      return;
-    }
     const modeBlocked =
       (transferType === 'domestic' && profile?.block_domestic) ||
       (transferType === 'international' && profile?.block_international) ||
@@ -203,6 +200,11 @@ const Dashboard = () => {
   };
 
   const handlePinVerify = async () => {
+    // Block check happens here so users can fill the form, but cannot finalize transfer
+    if (profile?.transfer_blocked) {
+      toast.error(language === 'vi' ? 'Chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.');
+      return;
+    }
     if (pinCode.length !== 6) {
       toast.error(language === 'vi' ? 'Vui lòng nhập đầy đủ 6 chữ số' : 'Please enter all 6 digits');
       return;
@@ -247,6 +249,51 @@ const Dashboard = () => {
     setPinCode('');
     toast.success(language === 'vi' ? 'Giao dịch đã được gửi để xử lý!' : 'Transaction submitted for processing!');
     fetchAll();
+  };
+
+  const handleDownloadReceiptPDF = () => {
+    if (!lastReceipt) return;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 60;
+    doc.setFontSize(20); doc.setTextColor(10, 36, 99);
+    doc.text('Viet Trust Bank', pageWidth / 2, y, { align: 'center' });
+    y += 22;
+    doc.setFontSize(12); doc.setTextColor(100);
+    doc.text(language === 'vi' ? 'Bien Lai Giao Dich' : 'Transaction Receipt', pageWidth / 2, y, { align: 'center' });
+    y += 10;
+    doc.setDrawColor(10, 36, 99); doc.setLineWidth(1.5);
+    doc.line(60, y, pageWidth - 60, y);
+    y += 30;
+    doc.setFontSize(22); doc.setTextColor(10, 36, 99);
+    doc.text(formatVND(lastReceipt.amount), pageWidth / 2, y, { align: 'center' });
+    y += 18;
+    doc.setFontSize(10); doc.setTextColor(180, 100, 0);
+    doc.text(language === 'vi' ? 'Dang xu ly' : 'Processing', pageWidth / 2, y, { align: 'center' });
+    y += 30;
+    const rows: [string, string][] = [
+      [language === 'vi' ? 'Loai chuyen' : 'Type', String(lastReceipt.transferType)],
+      [language === 'vi' ? 'Ma giao dich' : 'Reference', lastReceipt.reference_number],
+      [language === 'vi' ? 'Nguoi gui' : 'Sender', lastReceipt.senderName],
+      [language === 'vi' ? 'TK gui' : 'From Account', lastReceipt.senderAccount],
+      [language === 'vi' ? 'Nguoi nhan' : 'Recipient', lastReceipt.recipient_name],
+      [language === 'vi' ? 'TK nhan' : 'To Account', lastReceipt.recipient_account],
+      [language === 'vi' ? 'Thoi gian' : 'Date', lastReceipt.date],
+    ];
+    doc.setFontSize(11);
+    rows.forEach(([label, value]) => {
+      doc.setTextColor(120); doc.text(label, 70, y);
+      doc.setTextColor(20); doc.text(String(value), pageWidth - 70, y, { align: 'right' });
+      doc.setDrawColor(230); doc.setLineWidth(0.5);
+      doc.line(60, y + 6, pageWidth - 60, y + 6);
+      y += 22;
+    });
+    y += 20;
+    doc.setFontSize(9); doc.setTextColor(150);
+    doc.text('Viet Trust Bank (c) 2026', pageWidth / 2, y, { align: 'center' });
+    y += 12;
+    doc.text(language === 'vi' ? 'Cam on ban da su dung dich vu' : 'Thank you for using our service', pageWidth / 2, y, { align: 'center' });
+    doc.save(`receipt-${lastReceipt.reference_number}.pdf`);
   };
 
   const handlePrintReceipt = () => {
@@ -513,13 +560,7 @@ const Dashboard = () => {
         <Card className="border-0 shadow-md bg-black border-gray-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-white"><Send className="w-5 h-5 text-bank-lightBlue" />{language === 'vi' ? 'Chuyển tiền' : 'Transfer'}</CardTitle>
-            {profile?.transfer_blocked && (
-              <div className="flex items-center gap-2 text-red-400 bg-red-500/10 p-3 rounded-lg text-sm mt-2">
-                <AlertTriangle className="w-4 h-4" />
-                {language === 'vi' ? 'Chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.'}
-              </div>
-            )}
-            {!profile?.transfer_blocked && !profile?.is_approved && (
+            {!profile?.is_approved && (
               <div className="flex items-center gap-2 text-amber-400 bg-amber-500/10 p-3 rounded-lg text-sm mt-2">
                 <AlertTriangle className="w-4 h-4" />
                 {language === 'vi' ? 'Tài khoản chưa được duyệt. Bạn không thể chuyển tiền.' : 'Account not approved. You cannot transfer.'}
@@ -558,7 +599,7 @@ const Dashboard = () => {
                 <TabsContent value="wire" className="mt-0">{renderWireForm()}</TabsContent>
               </div>
             </Tabs>
-            <Button onClick={handleTransferSubmit} disabled={!profile?.is_approved || profile?.transfer_blocked}
+            <Button onClick={handleTransferSubmit} disabled={!profile?.is_approved}
               className="w-full h-11 bg-gradient-to-r from-bank-darkBlue to-bank-blue text-white font-semibold">
               <Send className="w-4 h-4 mr-2" />{language === 'vi' ? 'Tiếp tục' : 'Continue'}
             </Button>
@@ -640,9 +681,12 @@ const Dashboard = () => {
                 <p>{language === 'vi' ? 'Cảm ơn bạn đã sử dụng dịch vụ' : 'Thank you for using our service'}</p>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+            <div className="flex flex-col sm:flex-row gap-3 mt-6">
+              <Button variant="outline" onClick={handleDownloadReceiptPDF} className="flex-1 border-gray-600 text-gray-300">
+                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'Tải PDF' : 'Download PDF'}
+              </Button>
               <Button variant="outline" onClick={handlePrintReceipt} className="flex-1 border-gray-600 text-gray-300">
-                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'In biên lai' : 'Print Receipt'}
+                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'In biên lai' : 'Print'}
               </Button>
               <Button onClick={resetTransfer} className="flex-1 bg-gradient-to-r from-bank-darkBlue to-bank-blue text-white">
                 {language === 'vi' ? 'Giao dịch mới' : 'New Transfer'}
