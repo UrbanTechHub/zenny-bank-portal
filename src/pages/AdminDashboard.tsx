@@ -371,7 +371,25 @@ const AdminDashboard = () => {
                         : 'User enters this code after password login.'}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="space-y-2 pt-2 border-t border-gray-700">
+                    <p className="text-sm text-gray-400 font-medium">{language === 'vi' ? 'Chặn chế độ chuyển tiền' : 'Block transfer modes'}</p>
+                    {[
+                      { key: 'block_domestic', label: language === 'vi' ? 'Chuyển khoản trong nước (NAPAS)' : 'Domestic (NAPAS)' },
+                      { key: 'block_international', label: language === 'vi' ? 'Chuyển khoản quốc tế (SWIFT)' : 'International (SWIFT)' },
+                      { key: 'block_wire', label: language === 'vi' ? 'Điện chuyển tiền (Wire/TT)' : 'Wire Transfer (TT)' },
+                    ].map(opt => (
+                      <label key={opt.key} className="flex items-center justify-between gap-2 py-1.5 px-3 bg-gray-700/50 rounded-md cursor-pointer">
+                        <span className="text-sm text-white">{opt.label}</span>
+                        <input
+                          type="checkbox"
+                          checked={(editForm as any)[opt.key]}
+                          onChange={(e) => setEditForm(p => ({ ...p, [opt.key]: e.target.checked }))}
+                          className="w-4 h-4 accent-red-500"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex gap-2 pt-2">
                     <Button onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700">{language === 'vi' ? 'Lưu' : 'Save'}</Button>
                     <Button variant="outline" onClick={() => setEditingUser(null)} className="border-gray-600 text-gray-300">{language === 'vi' ? 'Hủy' : 'Cancel'}</Button>
                   </div>
