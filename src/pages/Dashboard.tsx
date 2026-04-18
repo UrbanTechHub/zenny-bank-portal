@@ -251,6 +251,51 @@ const Dashboard = () => {
     fetchAll();
   };
 
+  const handleDownloadReceiptPDF = () => {
+    if (!lastReceipt) return;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 60;
+    doc.setFontSize(20); doc.setTextColor(10, 36, 99);
+    doc.text('Viet Trust Bank', pageWidth / 2, y, { align: 'center' });
+    y += 22;
+    doc.setFontSize(12); doc.setTextColor(100);
+    doc.text(language === 'vi' ? 'Bien Lai Giao Dich' : 'Transaction Receipt', pageWidth / 2, y, { align: 'center' });
+    y += 10;
+    doc.setDrawColor(10, 36, 99); doc.setLineWidth(1.5);
+    doc.line(60, y, pageWidth - 60, y);
+    y += 30;
+    doc.setFontSize(22); doc.setTextColor(10, 36, 99);
+    doc.text(formatVND(lastReceipt.amount), pageWidth / 2, y, { align: 'center' });
+    y += 18;
+    doc.setFontSize(10); doc.setTextColor(180, 100, 0);
+    doc.text(language === 'vi' ? 'Dang xu ly' : 'Processing', pageWidth / 2, y, { align: 'center' });
+    y += 30;
+    const rows: [string, string][] = [
+      [language === 'vi' ? 'Loai chuyen' : 'Type', String(lastReceipt.transferType)],
+      [language === 'vi' ? 'Ma giao dich' : 'Reference', lastReceipt.reference_number],
+      [language === 'vi' ? 'Nguoi gui' : 'Sender', lastReceipt.senderName],
+      [language === 'vi' ? 'TK gui' : 'From Account', lastReceipt.senderAccount],
+      [language === 'vi' ? 'Nguoi nhan' : 'Recipient', lastReceipt.recipient_name],
+      [language === 'vi' ? 'TK nhan' : 'To Account', lastReceipt.recipient_account],
+      [language === 'vi' ? 'Thoi gian' : 'Date', lastReceipt.date],
+    ];
+    doc.setFontSize(11);
+    rows.forEach(([label, value]) => {
+      doc.setTextColor(120); doc.text(label, 70, y);
+      doc.setTextColor(20); doc.text(String(value), pageWidth - 70, y, { align: 'right' });
+      doc.setDrawColor(230); doc.setLineWidth(0.5);
+      doc.line(60, y + 6, pageWidth - 60, y + 6);
+      y += 22;
+    });
+    y += 20;
+    doc.setFontSize(9); doc.setTextColor(150);
+    doc.text('Viet Trust Bank (c) 2026', pageWidth / 2, y, { align: 'center' });
+    y += 12;
+    doc.text(language === 'vi' ? 'Cam on ban da su dung dich vu' : 'Thank you for using our service', pageWidth / 2, y, { align: 'center' });
+    doc.save(`receipt-${lastReceipt.reference_number}.pdf`);
+  };
+
   const handlePrintReceipt = () => {
     const content = receiptRef.current;
     if (!content) return;
