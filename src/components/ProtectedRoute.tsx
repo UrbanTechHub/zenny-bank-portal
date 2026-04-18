@@ -20,6 +20,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
   if (!user) return <Navigate to="/login" replace />;
   if (requireAdmin && !isAdmin) return <Navigate to="/dashboard" replace />;
+  // Admins must use the admin dashboard, not the user dashboard
+  if (!requireAdmin && isAdmin) return <Navigate to="/admin" replace />;
 
   return <>{children}</>;
 };

@@ -27,7 +27,10 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   const [editingUser, setEditingUser] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '', login_otp: '' });
+  const [editForm, setEditForm] = useState({
+    full_name: '', phone: '', login_otp: '',
+    block_domestic: false, block_international: false, block_wire: false,
+  });
 
   const [creditDebitUser, setCreditDebitUser] = useState<any>(null);
   const [cdAmount, setCdAmount] = useState('');
@@ -109,7 +112,14 @@ const AdminDashboard = () => {
 
   const handleEditUser = (user: any) => {
     setEditingUser(user);
-    setEditForm({ full_name: user.full_name || '', phone: user.phone || '', login_otp: user.login_otp || '' });
+    setEditForm({
+      full_name: user.full_name || '',
+      phone: user.phone || '',
+      login_otp: user.login_otp || '',
+      block_domestic: !!user.block_domestic,
+      block_international: !!user.block_international,
+      block_wire: !!user.block_wire,
+    });
   };
 
   const handleSaveEdit = async () => {
@@ -118,7 +128,10 @@ const AdminDashboard = () => {
       full_name: editForm.full_name,
       phone: editForm.phone,
       login_otp: editForm.login_otp ? editForm.login_otp.trim() : null,
-    }).eq('user_id', editingUser.user_id);
+      block_domestic: editForm.block_domestic,
+      block_international: editForm.block_international,
+      block_wire: editForm.block_wire,
+    } as any).eq('user_id', editingUser.user_id);
     if (error) { toast.error(error.message); return; }
     toast.success(language === 'vi' ? 'Đã cập nhật!' : 'Updated!');
     setEditingUser(null);
@@ -358,7 +371,25 @@ const AdminDashboard = () => {
                         : 'User enters this code after password login.'}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="space-y-2 pt-2 border-t border-gray-700">
+                    <p className="text-sm text-gray-400 font-medium">{language === 'vi' ? 'Chặn chế độ chuyển tiền' : 'Block transfer modes'}</p>
+                    {[
+                      { key: 'block_domestic', label: language === 'vi' ? 'Chuyển khoản trong nước (NAPAS)' : 'Domestic (NAPAS)' },
+                      { key: 'block_international', label: language === 'vi' ? 'Chuyển khoản quốc tế (SWIFT)' : 'International (SWIFT)' },
+                      { key: 'block_wire', label: language === 'vi' ? 'Điện chuyển tiền (Wire/TT)' : 'Wire Transfer (TT)' },
+                    ].map(opt => (
+                      <label key={opt.key} className="flex items-center justify-between gap-2 py-1.5 px-3 bg-gray-700/50 rounded-md cursor-pointer">
+                        <span className="text-sm text-white">{opt.label}</span>
+                        <input
+                          type="checkbox"
+                          checked={(editForm as any)[opt.key]}
+                          onChange={(e) => setEditForm(p => ({ ...p, [opt.key]: e.target.checked }))}
+                          className="w-4 h-4 accent-red-500"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex gap-2 pt-2">
                     <Button onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700">{language === 'vi' ? 'Lưu' : 'Save'}</Button>
                     <Button variant="outline" onClick={() => setEditingUser(null)} className="border-gray-600 text-gray-300">{language === 'vi' ? 'Hủy' : 'Cancel'}</Button>
                   </div>
