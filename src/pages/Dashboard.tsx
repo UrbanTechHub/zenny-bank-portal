@@ -80,7 +80,18 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
-    if (user) fetchAll();
+    if (!user) return;
+    fetchAll();
+    // Subscribe to live updates on this user's profile so admin lock/block changes apply instantly
+    const ch = supabase
+      .channel(`profile-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `user_id=eq.${user.id}` },
+        (payload) => setProfile(payload.new)
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
   }, [user]);
 
   // Auto-logout if account is locked
