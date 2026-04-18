@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
+import jsPDF from 'jspdf';
 
 /* ──────────── Sidebar Menu Content ──────────── */
 const SidebarMenuContent = ({ menuItems, activeTab, onSelectTab }: { menuItems: any[]; activeTab: string; onSelectTab: (id: string) => void }) => {
@@ -635,9 +636,12 @@ const Dashboard = () => {
                 <p>{language === 'vi' ? 'Cảm ơn bạn đã sử dụng dịch vụ' : 'Thank you for using our service'}</p>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+            <div className="flex flex-col sm:flex-row gap-3 mt-6">
+              <Button variant="outline" onClick={handleDownloadReceiptPDF} className="flex-1 border-gray-600 text-gray-300">
+                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'Tải PDF' : 'Download PDF'}
+              </Button>
               <Button variant="outline" onClick={handlePrintReceipt} className="flex-1 border-gray-600 text-gray-300">
-                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'In biên lai' : 'Print Receipt'}
+                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'In biên lai' : 'Print'}
               </Button>
               <Button onClick={resetTransfer} className="flex-1 bg-gradient-to-r from-bank-darkBlue to-bank-blue text-white">
                 {language === 'vi' ? 'Giao dịch mới' : 'New Transfer'}
