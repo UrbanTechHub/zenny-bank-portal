@@ -160,6 +160,14 @@ const Dashboard = () => {
       toast.error(language === 'vi' ? 'Chức năng chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.');
       return;
     }
+    const modeBlocked =
+      (transferType === 'domestic' && profile?.block_domestic) ||
+      (transferType === 'international' && profile?.block_international) ||
+      (transferType === 'wire' && profile?.block_wire);
+    if (modeBlocked) {
+      toast.error(language === 'vi' ? 'Chế độ chuyển tiền này đã bị chặn cho tài khoản của bạn.' : 'This transfer mode is disabled for your account.');
+      return;
+    }
     if (!profile?.is_approved) {
       toast.error(language === 'vi' ? 'Tài khoản chưa được duyệt. Vui lòng chờ admin phê duyệt.' : 'Account not approved. Please wait for admin approval.');
       return;
