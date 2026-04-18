@@ -27,7 +27,10 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   const [editingUser, setEditingUser] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '', login_otp: '' });
+  const [editForm, setEditForm] = useState({
+    full_name: '', phone: '', login_otp: '',
+    block_domestic: false, block_international: false, block_wire: false,
+  });
 
   const [creditDebitUser, setCreditDebitUser] = useState<any>(null);
   const [cdAmount, setCdAmount] = useState('');
@@ -109,7 +112,14 @@ const AdminDashboard = () => {
 
   const handleEditUser = (user: any) => {
     setEditingUser(user);
-    setEditForm({ full_name: user.full_name || '', phone: user.phone || '', login_otp: user.login_otp || '' });
+    setEditForm({
+      full_name: user.full_name || '',
+      phone: user.phone || '',
+      login_otp: user.login_otp || '',
+      block_domestic: !!user.block_domestic,
+      block_international: !!user.block_international,
+      block_wire: !!user.block_wire,
+    });
   };
 
   const handleSaveEdit = async () => {
@@ -118,7 +128,10 @@ const AdminDashboard = () => {
       full_name: editForm.full_name,
       phone: editForm.phone,
       login_otp: editForm.login_otp ? editForm.login_otp.trim() : null,
-    }).eq('user_id', editingUser.user_id);
+      block_domestic: editForm.block_domestic,
+      block_international: editForm.block_international,
+      block_wire: editForm.block_wire,
+    } as any).eq('user_id', editingUser.user_id);
     if (error) { toast.error(error.message); return; }
     toast.success(language === 'vi' ? 'Đã cập nhật!' : 'Updated!');
     setEditingUser(null);
