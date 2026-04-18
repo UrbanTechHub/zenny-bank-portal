@@ -514,13 +514,7 @@ const Dashboard = () => {
         <Card className="border-0 shadow-md bg-black border-gray-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-white"><Send className="w-5 h-5 text-bank-lightBlue" />{language === 'vi' ? 'Chuyển tiền' : 'Transfer'}</CardTitle>
-            {profile?.transfer_blocked && (
-              <div className="flex items-center gap-2 text-red-400 bg-red-500/10 p-3 rounded-lg text-sm mt-2">
-                <AlertTriangle className="w-4 h-4" />
-                {language === 'vi' ? 'Chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.'}
-              </div>
-            )}
-            {!profile?.transfer_blocked && !profile?.is_approved && (
+            {!profile?.is_approved && (
               <div className="flex items-center gap-2 text-amber-400 bg-amber-500/10 p-3 rounded-lg text-sm mt-2">
                 <AlertTriangle className="w-4 h-4" />
                 {language === 'vi' ? 'Tài khoản chưa được duyệt. Bạn không thể chuyển tiền.' : 'Account not approved. You cannot transfer.'}
@@ -559,7 +553,7 @@ const Dashboard = () => {
                 <TabsContent value="wire" className="mt-0">{renderWireForm()}</TabsContent>
               </div>
             </Tabs>
-            <Button onClick={handleTransferSubmit} disabled={!profile?.is_approved || profile?.transfer_blocked}
+            <Button onClick={handleTransferSubmit} disabled={!profile?.is_approved}
               className="w-full h-11 bg-gradient-to-r from-bank-darkBlue to-bank-blue text-white font-semibold">
               <Send className="w-4 h-4 mr-2" />{language === 'vi' ? 'Tiếp tục' : 'Continue'}
             </Button>
