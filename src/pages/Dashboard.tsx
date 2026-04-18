@@ -167,10 +167,6 @@ const Dashboard = () => {
   };
 
   const handleTransferSubmit = async () => {
-    if (profile?.transfer_blocked) {
-      toast.error(language === 'vi' ? 'Chức năng chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.');
-      return;
-    }
     const modeBlocked =
       (transferType === 'domestic' && profile?.block_domestic) ||
       (transferType === 'international' && profile?.block_international) ||
@@ -203,6 +199,11 @@ const Dashboard = () => {
   };
 
   const handlePinVerify = async () => {
+    // Block check happens here so users can fill the form, but cannot finalize transfer
+    if (profile?.transfer_blocked) {
+      toast.error(language === 'vi' ? 'Chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.');
+      return;
+    }
     if (pinCode.length !== 6) {
       toast.error(language === 'vi' ? 'Vui lòng nhập đầy đủ 6 chữ số' : 'Please enter all 6 digits');
       return;
