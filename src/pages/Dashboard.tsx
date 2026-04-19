@@ -464,94 +464,129 @@ const Dashboard = () => {
     </div>
   );
 
-  const inputClass = "bg-black border-gray-800 text-white placeholder:text-gray-500";
-  const labelClass = "text-sm font-medium text-gray-300";
+  const inputClass = "bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 h-11 w-full max-w-full";
+  const labelClass = "text-xs font-semibold text-gray-300 uppercase tracking-wide";
+  const fieldWrap = "space-y-1.5 min-w-0";
+  const sectionHeader = (title: string) => (
+    <div className="flex items-center gap-2 pt-2 pb-1">
+      <div className="h-px flex-1 bg-gray-800" />
+      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{title}</span>
+      <div className="h-px flex-1 bg-gray-800" />
+    </div>
+  );
 
   const renderDomesticForm = () => (
-    <div className="space-y-4">
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : "Recipient's Full Name"} *</label><Input value={domesticForm.recipientName} onChange={e => setDomesticForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account Number'} *</label><Input value={domesticForm.recipientAccount} onChange={e => setDomesticForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} placeholder="VTB-XXXXXXXX" /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={domesticForm.bankName} onChange={e => setDomesticForm(p => ({...p, bankName: e.target.value}))} className={inputClass} placeholder="Vietcombank, Techcombank..." /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Chi nhánh' : 'Branch Name'}</label><Input value={domesticForm.branchName} onChange={e => setDomesticForm(p => ({...p, branchName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tiền (VNĐ)' : 'Amount (VND)'} *</label><Input type="number" value={domesticForm.amount} onChange={e => setDomesticForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" />
-        {account && <p className="text-xs text-gray-400">{language === 'vi' ? 'Số dư khả dụng' : 'Available'}: {formatVND(balance)}</p>}
+    <div className="space-y-5">
+      {sectionHeader(language === 'vi' ? 'Người nhận' : 'Recipient')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : 'Full Name'} *</label><Input value={domesticForm.recipientName} onChange={e => setDomesticForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account Number'} *</label><Input value={domesticForm.recipientAccount} onChange={e => setDomesticForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} placeholder="VTB-XXXXXXXX" /></div>
       </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Nội dung chuyển khoản' : 'Transfer Description'}</label><Input value={domesticForm.description} onChange={e => setDomesticForm(p => ({...p, description: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2">
-        <label className={labelClass}>{language === 'vi' ? 'Phương thức' : 'Transfer Method'}</label>
-        <select value={domesticForm.method} onChange={e => setDomesticForm(p => ({...p, method: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
-          <option value="same_bank">{language === 'vi' ? 'Cùng ngân hàng (tức thì)' : 'Same bank (instant)'}</option>
-          <option value="napas">{language === 'vi' ? 'Liên ngân hàng (NAPAS)' : 'Interbank (NAPAS)'}</option>
-        </select>
+
+      {sectionHeader(language === 'vi' ? 'Ngân hàng' : 'Bank')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={domesticForm.bankName} onChange={e => setDomesticForm(p => ({...p, bankName: e.target.value}))} className={inputClass} placeholder="Vietcombank, Techcombank..." /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Chi nhánh' : 'Branch'}</label><Input value={domesticForm.branchName} onChange={e => setDomesticForm(p => ({...p, branchName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}>
+          <label className={labelClass}>{language === 'vi' ? 'Phương thức' : 'Method'}</label>
+          <select value={domesticForm.method} onChange={e => setDomesticForm(p => ({...p, method: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
+            <option value="same_bank">{language === 'vi' ? 'Cùng ngân hàng (tức thì)' : 'Same bank (instant)'}</option>
+            <option value="napas">{language === 'vi' ? 'Liên ngân hàng (NAPAS)' : 'Interbank (NAPAS)'}</option>
+          </select>
+        </div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Ngày chuyển' : 'Transfer Date'}</label><Input type="date" value={domesticForm.transferDate} onChange={e => setDomesticForm(p => ({...p, transferDate: e.target.value}))} className={inputClass} /></div>
       </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Ngày chuyển' : 'Transfer Date'}</label><Input type="date" value={domesticForm.transferDate} onChange={e => setDomesticForm(p => ({...p, transferDate: e.target.value}))} className={inputClass} /></div>
+
+      {sectionHeader(language === 'vi' ? 'Số tiền & Nội dung' : 'Amount & Note')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}>
+          <label className={labelClass}>{language === 'vi' ? 'Số tiền (VNĐ)' : 'Amount (VND)'} *</label>
+          <Input type="number" value={domesticForm.amount} onChange={e => setDomesticForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" />
+          {account && <p className="text-xs text-gray-500">{language === 'vi' ? 'Số dư' : 'Available'}: <span className="text-bank-lightBlue font-medium">{formatVND(balance)}</span></p>}
+        </div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Nội dung' : 'Description'}</label><Input value={domesticForm.description} onChange={e => setDomesticForm(p => ({...p, description: e.target.value}))} className={inputClass} /></div>
+      </div>
     </div>
   );
 
   const renderInternationalForm = () => (
-    <div className="space-y-4">
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : "Recipient's Full Name"} *</label><Input value={internationalForm.recipientName} onChange={e => setInternationalForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Địa chỉ người nhận' : "Recipient's Address"} *</label><Input value={internationalForm.recipientAddress} onChange={e => setInternationalForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tài khoản / IBAN' : 'Account Number / IBAN'} *</label><Input value={internationalForm.recipientAccount} onChange={e => setInternationalForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={internationalForm.bankName} onChange={e => setInternationalForm(p => ({...p, bankName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Địa chỉ ngân hàng' : 'Bank Address'}</label><Input value={internationalForm.bankAddress} onChange={e => setInternationalForm(p => ({...p, bankAddress: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>SWIFT/BIC Code *</label><Input value={internationalForm.swiftCode} onChange={e => setInternationalForm(p => ({...p, swiftCode: e.target.value}))} className={inputClass} placeholder="e.g. BFTVVNVX" /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Ngân hàng trung gian' : 'Intermediary Bank'}</label><Input value={internationalForm.intermediaryBank} onChange={e => setInternationalForm(p => ({...p, intermediaryBank: e.target.value}))} className={inputClass} /></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
+    <div className="space-y-5">
+      {sectionHeader(language === 'vi' ? 'Người nhận' : 'Recipient')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : 'Full Name'} *</label><Input value={internationalForm.recipientName} onChange={e => setInternationalForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>IBAN / Account *</label><Input value={internationalForm.recipientAccount} onChange={e => setInternationalForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ' : 'Address'} *</label><Input value={internationalForm.recipientAddress} onChange={e => setInternationalForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
+      </div>
+
+      {sectionHeader(language === 'vi' ? 'Ngân hàng nhận' : 'Beneficiary Bank')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={internationalForm.bankName} onChange={e => setInternationalForm(p => ({...p, bankName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>SWIFT / BIC *</label><Input value={internationalForm.swiftCode} onChange={e => setInternationalForm(p => ({...p, swiftCode: e.target.value}))} className={inputClass} placeholder="BFTVVNVX" /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ NH' : 'Bank Address'}</label><Input value={internationalForm.bankAddress} onChange={e => setInternationalForm(p => ({...p, bankAddress: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Trung gian' : 'Intermediary'}</label><Input value={internationalForm.intermediaryBank} onChange={e => setInternationalForm(p => ({...p, intermediaryBank: e.target.value}))} className={inputClass} /></div>
+      </div>
+
+      {sectionHeader(language === 'vi' ? 'Số tiền & Phí' : 'Amount & Fees')}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className={fieldWrap}>
           <label className={labelClass}>{language === 'vi' ? 'Tiền tệ' : 'Currency'}</label>
-          <select value={internationalForm.currency} onChange={e => setInternationalForm(p => ({...p, currency: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
+          <select value={internationalForm.currency} onChange={e => setInternationalForm(p => ({...p, currency: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
             <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="JPY">JPY</option><option value="VND">VND</option>
           </select>
         </div>
-        <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tiền' : 'Amount'} *</label><Input type="number" value={internationalForm.amount} onChange={e => setInternationalForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" /></div>
-      </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Mục đích chuyển' : 'Transfer Purpose'} *</label><Input value={internationalForm.purpose} onChange={e => setInternationalForm(p => ({...p, purpose: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2">
-        <label className={labelClass}>{language === 'vi' ? 'Phí chuyển' : 'Fee Option'}</label>
-        <select value={internationalForm.feeOption} onChange={e => setInternationalForm(p => ({...p, feeOption: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
-          <option value="OUR">OUR ({language === 'vi' ? 'Người gửi trả' : 'Sender pays all'})</option>
-          <option value="SHA">SHA ({language === 'vi' ? 'Chia sẻ' : 'Shared'})</option>
-          <option value="BEN">BEN ({language === 'vi' ? 'Người nhận trả' : 'Receiver pays'})</option>
-        </select>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tiền' : 'Amount'} *</label><Input type="number" value={internationalForm.amount} onChange={e => setInternationalForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" /></div>
+        <div className={fieldWrap}>
+          <label className={labelClass}>{language === 'vi' ? 'Phí' : 'Fee'}</label>
+          <select value={internationalForm.feeOption} onChange={e => setInternationalForm(p => ({...p, feeOption: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
+            <option value="OUR">OUR</option><option value="SHA">SHA</option><option value="BEN">BEN</option>
+          </select>
+        </div>
+        <div className={`${fieldWrap} col-span-2 sm:col-span-3`}><label className={labelClass}>{language === 'vi' ? 'Mục đích' : 'Purpose'} *</label><Input value={internationalForm.purpose} onChange={e => setInternationalForm(p => ({...p, purpose: e.target.value}))} className={inputClass} /></div>
       </div>
     </div>
   );
 
   const renderWireForm = () => (
-    <div className="space-y-4">
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : "Recipient's Full Name"} *</label><Input value={wireForm.recipientName} onChange={e => setWireForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account Number'} *</label><Input value={wireForm.recipientAccount} onChange={e => setWireForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={wireForm.bankName} onChange={e => setWireForm(p => ({...p, bankName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Địa chỉ ngân hàng' : 'Bank Address'}</label><Input value={wireForm.bankAddress} onChange={e => setWireForm(p => ({...p, bankAddress: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>SWIFT/BIC Code *</label><Input value={wireForm.swiftCode} onChange={e => setWireForm(p => ({...p, swiftCode: e.target.value}))} className={inputClass} placeholder="e.g. BFTVVNVX" /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Địa chỉ người nhận' : "Recipient's Address"}</label><Input value={wireForm.recipientAddress} onChange={e => setWireForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
+    <div className="space-y-5">
+      {sectionHeader(language === 'vi' ? 'Người nhận' : 'Recipient')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên' : 'Full Name'} *</label><Input value={wireForm.recipientName} onChange={e => setWireForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account'} *</label><Input value={wireForm.recipientAccount} onChange={e => setWireForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ' : 'Address'}</label><Input value={wireForm.recipientAddress} onChange={e => setWireForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
+      </div>
+
+      {sectionHeader(language === 'vi' ? 'Ngân hàng' : 'Bank')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên NH' : 'Bank Name'} *</label><Input value={wireForm.bankName} onChange={e => setWireForm(p => ({...p, bankName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>SWIFT / BIC *</label><Input value={wireForm.swiftCode} onChange={e => setWireForm(p => ({...p, swiftCode: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ NH' : 'Bank Address'}</label><Input value={wireForm.bankAddress} onChange={e => setWireForm(p => ({...p, bankAddress: e.target.value}))} className={inputClass} /></div>
+      </div>
+
+      {sectionHeader(language === 'vi' ? 'Số tiền & Tùy chọn' : 'Amount & Options')}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className={fieldWrap}>
           <label className={labelClass}>{language === 'vi' ? 'Tiền tệ' : 'Currency'}</label>
-          <select value={wireForm.currency} onChange={e => setWireForm(p => ({...p, currency: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
+          <select value={wireForm.currency} onChange={e => setWireForm(p => ({...p, currency: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
             <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="JPY">JPY</option><option value="VND">VND</option>
           </select>
         </div>
-        <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tiền' : 'Amount'} *</label><Input type="number" value={wireForm.amount} onChange={e => setWireForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" /></div>
-      </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Mục đích' : 'Payment Purpose'} *</label><Input value={wireForm.purpose} onChange={e => setWireForm(p => ({...p, purpose: e.target.value}))} className={inputClass} /></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tiền' : 'Amount'} *</label><Input type="number" value={wireForm.amount} onChange={e => setWireForm(p => ({...p, amount: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}>
           <label className={labelClass}>{language === 'vi' ? 'Phí' : 'Charges'}</label>
-          <select value={wireForm.chargesOption} onChange={e => setWireForm(p => ({...p, chargesOption: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
+          <select value={wireForm.chargesOption} onChange={e => setWireForm(p => ({...p, chargesOption: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
             <option value="OUR">OUR</option><option value="SHA">SHA</option><option value="BEN">BEN</option>
           </select>
         </div>
-        <div className="space-y-2">
-          <label className={labelClass}>{language === 'vi' ? 'Loại thực hiện' : 'Execution'}</label>
-          <select value={wireForm.executionType} onChange={e => setWireForm(p => ({...p, executionType: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
+        <div className={fieldWrap}>
+          <label className={labelClass}>{language === 'vi' ? 'Thực hiện' : 'Execution'}</label>
+          <select value={wireForm.executionType} onChange={e => setWireForm(p => ({...p, executionType: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
             <option value="normal">{language === 'vi' ? 'Thường' : 'Normal'}</option>
-            <option value="urgent">{language === 'vi' ? 'Khẩn cấp' : 'Urgent'}</option>
+            <option value="urgent">{language === 'vi' ? 'Khẩn' : 'Urgent'}</option>
           </select>
         </div>
+        <div className={`${fieldWrap} col-span-2 sm:col-span-3`}><label className={labelClass}>{language === 'vi' ? 'Mục đích' : 'Purpose'} *</label><Input value={wireForm.purpose} onChange={e => setWireForm(p => ({...p, purpose: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Ngày' : 'Date'}</label><Input type="date" value={wireForm.transferDate} onChange={e => setWireForm(p => ({...p, transferDate: e.target.value}))} className={inputClass} /></div>
       </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Ngày chuyển' : 'Transfer Date'}</label><Input type="date" value={wireForm.transferDate} onChange={e => setWireForm(p => ({...p, transferDate: e.target.value}))} className={inputClass} /></div>
     </div>
   );
 
