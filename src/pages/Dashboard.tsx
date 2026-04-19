@@ -19,6 +19,7 @@ import {
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import jsPDF from 'jspdf';
+import vtbLogo from '@/assets/viettrustbank-logo.png';
 
 /* ──────────── Sidebar Menu Content ──────────── */
 const SidebarMenuContent = ({ menuItems, activeTab, onSelectTab }: { menuItems: any[]; activeTab: string; onSelectTab: (id: string) => void }) => {
