@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate, Link } from "react-router-dom";
+import Logo from "@/components/Logo";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -34,11 +35,10 @@ const Navbar = () => {
   return (
     <header className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full", scrolled ? "bg-white py-2 md:py-3 shadow-lg" : "bg-gradient-to-r from-bank-darkBlue/95 to-bank-blue/95 backdrop-blur-sm py-3 md:py-5")}>
       <div className="container mx-auto flex items-center justify-between px-4 max-w-7xl w-full">
-        <Link to="/" className="flex items-center gap-2">
-          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-colors", scrolled ? "bg-bank-blue" : "bg-bank-gold")}>
-            <Shield className="w-4 h-4 text-white" />
-          </div>
-          <span className={cn("text-lg sm:text-xl font-bold transition-colors duration-300", scrolled ? "text-bank-blue" : "text-white")}>Việt Trust Bank</span>
+        <Link to="/" className="flex items-center gap-2" aria-label="VietTrustBank">
+          <span className={cn("inline-flex rounded-md px-2 py-1 transition-colors", scrolled ? "bg-transparent" : "bg-white shadow-sm")}>
+            <img src="/viettrustbank-logo.png" alt="VietTrustBank" className="h-7 sm:h-8 w-auto" />
+          </span>
         </Link>
         <div className="hidden md:flex items-center space-x-1">
           <nav className="flex items-center space-x-1 mr-4">
@@ -84,10 +84,10 @@ const Navbar = () => {
           {mobileMenuOpen ? <X className={cn("w-6 h-6", scrolled ? "text-bank-blue" : "text-white")} /> : <Menu className={cn("w-6 h-6", scrolled ? "text-bank-blue" : "text-white")} />}
         </button>
       </div>
-      <div className={cn("md:hidden fixed inset-0 z-50 bg-gradient-to-b from-bank-darkBlue to-bank-blue transform transition-transform duration-300 ease-in-out", mobileMenuOpen ? "translate-x-0" : "translate-x-full")}>
+      <div className={cn("md:hidden fixed inset-0 z-50 bg-black transform transition-transform duration-300 ease-in-out", mobileMenuOpen ? "translate-x-0" : "translate-x-full")}>
         <div className="flex flex-col h-full">
           <div className="p-4 border-b border-white/10 flex items-center justify-between">
-            <span className="text-lg font-bold text-white">Việt Trust Bank</span>
+            <span className="inline-flex bg-white rounded-md px-2 py-1"><img src="/viettrustbank-logo.png" alt="VietTrustBank" className="h-7 w-auto" /></span>
             <button onClick={() => setMobileMenuOpen(false)} className="p-2"><X className="w-6 h-6 text-white" /></button>
           </div>
           <div className="flex-1 overflow-y-auto py-4 px-4">

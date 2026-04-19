@@ -20,10 +20,7 @@ const MobileBankingSection = () => {
     return () => { if (sectionRef.current) observer.unobserve(sectionRef.current); };
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => setActiveFeature((prev) => (prev + 1) % features.length), 4000);
-    return () => clearInterval(interval);
-  }, []);
+  // Auto-rotation removed per design — cards are now click-only and stay where the user puts them.
 
   return (
     <div ref={sectionRef} className="relative py-24 overflow-hidden">
@@ -84,7 +81,7 @@ const MobileBankingSection = () => {
               <p className="text-gray-600 mb-8">Trải nghiệm tự do giao dịch mọi lúc, mọi nơi với ứng dụng ngân hàng số đầy đủ tính năng.</p>
               <div className="space-y-6 mb-10">
                 {features.map((feature, index) => (
-                  <div key={index} onClick={() => setActiveFeature(index)} className={cn("feature-card p-4 rounded-xl cursor-pointer transition-all duration-300", activeFeature === index ? "bg-bank-blue text-white transform scale-[1.02]" : "bg-white hover:bg-gray-50")}>
+                  <div key={index} onClick={() => setActiveFeature(index)} className={cn("feature-card p-4 rounded-xl cursor-pointer transition-colors duration-300", activeFeature === index ? "bg-bank-blue text-white" : "bg-white")}>
                     <div className="flex">
                       <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mr-4", activeFeature === index ? "bg-white/20" : "bg-bank-blue/10")}>{feature.icon}</div>
                       <div>

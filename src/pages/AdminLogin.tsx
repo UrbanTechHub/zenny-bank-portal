@@ -74,10 +74,10 @@ const AdminLogin = () => {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20">
-            <Shield className="w-9 h-9 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">{t('admin.login.title')}</h1>
+          <span className="inline-flex bg-white rounded-xl px-4 py-2 shadow-lg shadow-red-500/20 mb-4">
+            <img src="/viettrustbank-logo.png" alt="VietTrustBank" className="h-10 w-auto" />
+          </span>
+          <h1 className="text-2xl font-bold text-white mt-2">{t('admin.login.title')}</h1>
           <p className="text-gray-400 mt-1 text-sm">{t('admin.login.subtitle')}</p>
         </div>
 

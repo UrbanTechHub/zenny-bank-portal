@@ -8,6 +8,9 @@ const AccountLocked = () => {
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-6">
+        <span className="inline-flex bg-white rounded-lg px-4 py-2 shadow-lg">
+          <img src="/viettrustbank-logo.png" alt="VietTrustBank" className="h-10 w-auto" />
+        </span>
         <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
           <ShieldAlert className="w-12 h-12 text-red-500" />
         </div>
