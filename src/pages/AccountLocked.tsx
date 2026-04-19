@@ -44,7 +44,7 @@ const AccountLocked = () => {
             </div>
             <div>
               <p className="text-gray-400 text-xs">Email</p>
-              <p className="text-white font-medium">support@viettrustbank.com</p>
+              <p className="text-white font-medium">support@viettrusttaichinh.online</p>
             </div>
           </div>
         </div>
