@@ -72,11 +72,10 @@ const Signup = () => {
 
       <div className="relative w-full max-w-lg">
         <div className="text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-bank-gold to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-              <Shield className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-white">Việt Trust Bank</span>
+          <Link to="/" className="inline-flex items-center justify-center" aria-label="VietTrustBank">
+            <span className="inline-flex bg-white rounded-lg px-4 py-2 shadow-lg">
+              <img src="/viettrustbank-logo.png" alt="VietTrustBank" className="h-10 w-auto" />
+            </span>
           </Link>
         </div>
 

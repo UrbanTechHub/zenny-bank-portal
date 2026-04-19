@@ -13,8 +13,10 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
         <div className="lg:col-span-2">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">Việt Trust Bank</h2>
-            <p className="text-white/70 max-w-sm">Đối tác ngân hàng đáng tin cậy của bạn tại Việt Nam cung cấp các giải pháp tài chính đổi mới.</p>
+            <span className="inline-flex bg-white rounded-md px-3 py-2 mb-3 shadow-sm">
+              <img src="/viettrustbank-logo.png" alt="VietTrustBank" className="h-9 w-auto" />
+            </span>
+            <p className="text-white/70 max-w-sm mt-3">Đối tác ngân hàng đáng tin cậy của bạn tại Việt Nam cung cấp các giải pháp tài chính đổi mới.</p>
           </div>
           <div className="space-y-4">
             <div className="flex items-start"><MapPin className="w-5 h-5 text-bank-gold mr-3 mt-0.5" /><p className="text-white/70">123 Đường Tài Chính, Quận 1<br />TP. Hồ Chí Minh, Việt Nam</p></div>
