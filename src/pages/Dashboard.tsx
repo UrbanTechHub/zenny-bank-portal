@@ -718,49 +718,86 @@ const Dashboard = () => {
       )}
 
       {transferStep === 'receipt' && lastReceipt && (
-        <Card className="border-0 shadow-md bg-gray-950 border-gray-800">
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-xl bg-white text-gray-900 overflow-hidden">
+          <CardContent className="p-0">
             <div ref={receiptRef}>
-              <div className="header text-center border-b-2 border-bank-blue pb-4 mb-6">
-                <h2 className="text-xl font-bold text-white">Việt Trust Bank</h2>
-                <p className="text-sm text-gray-400 mt-1">{language === 'vi' ? 'Biên Lai Giao Dịch' : 'Transaction Receipt'}</p>
+              {/* Branded header strip */}
+              <div className="bg-gradient-to-r from-bank-darkBlue via-bank-blue to-bank-lightBlue px-6 py-5 text-center">
+                <img src={vtbLogo} alt="VietTrustBank" className="h-10 mx-auto bg-white rounded-md px-3 py-1.5 shadow-md" />
+                <p className="text-white/80 text-[11px] uppercase tracking-[0.2em] mt-3 font-semibold">
+                  {language === 'vi' ? 'Biên Lai Giao Dịch Chính Thức' : 'Official Transaction Receipt'}
+                </p>
               </div>
-              <div className="text-center my-6">
-                <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Check className="w-8 h-8 text-amber-400" />
+
+              <div className="px-6 py-6">
+                {/* Status + Amount */}
+                <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200 rounded-2xl p-5 text-center mb-6">
+                  <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg shadow-amber-500/30">
+                    <Check className="w-7 h-7 text-white" />
+                  </div>
+                  <p className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold">{language === 'vi' ? 'Tổng số tiền' : 'Total Amount'}</p>
+                  <p className="text-3xl font-bold text-bank-darkBlue mt-1">{formatVND(lastReceipt.amount)}</p>
+                  <span className="inline-block mt-3 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-500 text-white">
+                    {language === 'vi' ? 'Đang xử lý' : 'Processing'}
+                  </span>
                 </div>
-                <p className="text-2xl font-bold text-white">{formatVND(lastReceipt.amount)}</p>
-                <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
-                  {language === 'vi' ? 'Đang xử lý' : 'Processing'}
-                </span>
-              </div>
-              <div className="space-y-3 text-sm">
+
+                {/* Sections */}
                 {[
-                  [language === 'vi' ? 'Loại chuyển' : 'Type', lastReceipt.transferType === 'domestic' ? (language === 'vi' ? 'Nội địa' : 'Domestic') : lastReceipt.transferType === 'international' ? (language === 'vi' ? 'Quốc tế' : 'International') : 'Wire/TT'],
-                  [language === 'vi' ? 'Mã giao dịch' : 'Reference', lastReceipt.reference_number],
-                  [language === 'vi' ? 'Người gửi' : 'Sender', lastReceipt.senderName],
-                  [language === 'vi' ? 'TK gửi' : 'From Account', lastReceipt.senderAccount],
-                  [language === 'vi' ? 'Người nhận' : 'Recipient', lastReceipt.recipient_name],
-                  [language === 'vi' ? 'TK nhận' : 'To Account', lastReceipt.recipient_account],
-                  [language === 'vi' ? 'Thời gian' : 'Date', lastReceipt.date],
-                ].map(([label, value], i) => (
-                  <div key={i} className="flex justify-between py-2 border-b border-gray-800/50">
-                    <span className="text-gray-400">{label}</span>
-                    <span className="font-medium text-white font-mono">{value}</span>
+                  {
+                    title: language === 'vi' ? 'Chi tiết giao dịch' : 'Transaction Details',
+                    rows: [
+                      [language === 'vi' ? 'Mã giao dịch' : 'Reference No.', lastReceipt.reference_number],
+                      [language === 'vi' ? 'Loại chuyển' : 'Transfer Type', (lastReceipt.transferType === 'domestic' ? (language === 'vi' ? 'Nội địa (NAPAS)' : 'Domestic (NAPAS)') : lastReceipt.transferType === 'international' ? (language === 'vi' ? 'Quốc tế (SWIFT)' : 'International (SWIFT)') : 'Wire / TT')],
+                      [language === 'vi' ? 'Thời gian' : 'Date & Time', lastReceipt.date],
+                      [language === 'vi' ? 'Trạng thái' : 'Status', language === 'vi' ? 'Đang xử lý' : 'Processing'],
+                    ]
+                  },
+                  {
+                    title: language === 'vi' ? 'Người gửi' : 'Sender',
+                    rows: [
+                      [language === 'vi' ? 'Họ tên' : 'Full Name', lastReceipt.senderName],
+                      [language === 'vi' ? 'Số tài khoản' : 'Account No.', lastReceipt.senderAccount],
+                    ]
+                  },
+                  {
+                    title: language === 'vi' ? 'Người nhận' : 'Beneficiary',
+                    rows: [
+                      [language === 'vi' ? 'Họ tên' : 'Full Name', lastReceipt.recipient_name],
+                      [language === 'vi' ? 'Số tài khoản' : 'Account No.', lastReceipt.recipient_account],
+                    ]
+                  },
+                ].map((section, si) => (
+                  <div key={si} className="mb-5">
+                    <div className="bg-bank-darkBlue text-white text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-t-md">
+                      {section.title}
+                    </div>
+                    <div className="border border-t-0 border-gray-200 rounded-b-md divide-y divide-gray-100">
+                      {section.rows.map(([label, value], i) => (
+                        <div key={i} className="flex justify-between gap-3 px-3 py-2.5 text-sm">
+                          <span className="text-gray-500 text-xs uppercase tracking-wide">{label}</span>
+                          <span className="font-semibold text-gray-900 font-mono text-right break-all">{value}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
-              </div>
-              <div className="footer text-center mt-6 text-xs text-gray-500">
-                <p>Việt Trust Bank © 2026</p>
-                <p>{language === 'vi' ? 'Cảm ơn bạn đã sử dụng dịch vụ' : 'Thank you for using our service'}</p>
+
+                {/* Footer */}
+                <div className="border-t-2 border-dashed border-gray-200 mt-6 pt-4 text-center text-xs text-gray-500 space-y-1">
+                  <p className="font-semibold text-bank-darkBlue">VietTrustBank © 2026</p>
+                  <p>{language === 'vi' ? 'Biên lai được tạo tự động và có giá trị pháp lý.' : 'This receipt is auto-generated and legally valid.'}</p>
+                  <p className="font-mono text-[10px] text-gray-400">support@viettrusttaichinh.online</p>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button variant="outline" onClick={handleDownloadReceiptPDF} className="flex-1 border-gray-600 text-gray-300">
+
+            <div className="bg-gray-50 border-t px-6 py-4 flex flex-col sm:flex-row gap-3">
+              <Button variant="outline" onClick={handleDownloadReceiptPDF} className="flex-1">
                 <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'Tải PDF' : 'Download PDF'}
               </Button>
-              <Button variant="outline" onClick={handlePrintReceipt} className="flex-1 border-gray-600 text-gray-300">
-                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'In biên lai' : 'Print'}
+              <Button variant="outline" onClick={handlePrintReceipt} className="flex-1">
+                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'In' : 'Print'}
               </Button>
               <Button onClick={resetTransfer} className="flex-1 bg-gradient-to-r from-bank-darkBlue to-bank-blue text-white">
                 {language === 'vi' ? 'Giao dịch mới' : 'New Transfer'}
@@ -768,6 +805,33 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Processing overlay */}
+      {transferLoading && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-gray-950 border border-gray-800 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <img src={vtbLogo} alt="VTB" className="h-9 mx-auto bg-white rounded-md px-3 py-1.5 mb-5" />
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div className="absolute inset-0 rounded-full border-4 border-bank-blue/20" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-bank-lightBlue border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Send className="w-7 h-7 text-bank-lightBlue" />
+              </div>
+            </div>
+            <h3 className="text-white text-lg font-semibold mb-1">
+              {language === 'vi' ? 'Đang xử lý giao dịch' : 'Processing Transaction'}
+            </h3>
+            <p className="text-gray-400 text-sm">
+              {language === 'vi' ? 'Vui lòng không đóng cửa sổ này...' : 'Please do not close this window...'}
+            </p>
+            <div className="mt-5 flex justify-center gap-1">
+              <span className="w-1.5 h-1.5 bg-bank-lightBlue rounded-full animate-bounce" />
+              <span className="w-1.5 h-1.5 bg-bank-lightBlue rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+              <span className="w-1.5 h-1.5 bg-bank-lightBlue rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
