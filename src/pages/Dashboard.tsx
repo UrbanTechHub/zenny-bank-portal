@@ -1006,9 +1006,11 @@ const Dashboard = () => {
         <Sidebar className="border-r border-gray-900 bg-black [&>div]:bg-black">
           <SidebarHeader className="p-4 border-b border-gray-900 bg-black">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-bank-gold to-amber-500 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md">VTB</div>
+              <span className="inline-flex bg-white rounded-md px-2 py-1 shadow shrink-0">
+                <img src={vtbLogo} alt="VietTrustBank" className="h-7 w-auto" />
+              </span>
               <div className="min-w-0">
-                <p className="font-semibold text-sm text-white truncate">Việt Trust Bank</p>
+                <p className="font-semibold text-sm text-white truncate">VietTrustBank</p>
                 <p className="text-xs text-gray-500 truncate">{displayName}</p>
               </div>
             </div>
