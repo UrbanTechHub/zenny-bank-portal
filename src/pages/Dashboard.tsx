@@ -11,6 +11,7 @@ import {
   SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu,
   SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset, useSidebar
 } from '@/components/ui/sidebar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   BarChart3, Send, History, CreditCard, User, LogOut, Bell,
   ArrowUpRight, ArrowDownRight, Globe,
@@ -1037,10 +1038,66 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="relative text-gray-300 hover:text-white hover:bg-gray-900 h-9 w-9">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-bank-gold rounded-full" />
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label="Notifications" className="relative text-gray-300 hover:text-white hover:bg-gray-900 h-9 w-9">
+                      <Bell className="w-5 h-5" />
+                      {transactions.filter(t => t.status === 'pending').length > 0 && (
+                        <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 text-[9px] font-bold bg-bank-gold text-black rounded-full flex items-center justify-center">
+                          {transactions.filter(t => t.status === 'pending').length}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" sideOffset={8} className="w-80 p-0 bg-gray-950 border-gray-800 text-white">
+                    <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
+                      <h3 className="font-semibold text-sm">{language === 'vi' ? 'Thông báo' : 'Notifications'}</h3>
+                      <span className="text-[10px] text-gray-500 uppercase tracking-wider">{transactions.length} {language === 'vi' ? 'mục' : 'items'}</span>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto divide-y divide-gray-800/60">
+                      {profile?.is_locked && (
+                        <div className="px-4 py-3 bg-red-500/5">
+                          <p className="text-xs font-semibold text-red-400">{language === 'vi' ? 'Tài khoản bị khóa' : 'Account locked'}</p>
+                          <p className="text-[11px] text-gray-400 mt-0.5">{language === 'vi' ? 'Liên hệ hỗ trợ ngay.' : 'Contact support immediately.'}</p>
+                        </div>
+                      )}
+                      {profile?.transfer_blocked && (
+                        <div className="px-4 py-3 bg-amber-500/5">
+                          <p className="text-xs font-semibold text-amber-400">{language === 'vi' ? 'Chuyển tiền bị chặn' : 'Transfers blocked'}</p>
+                          <p className="text-[11px] text-gray-400 mt-0.5">{language === 'vi' ? 'Vui lòng liên hệ ngân hàng.' : 'Please contact the bank.'}</p>
+                        </div>
+                      )}
+                      {transactions.length === 0 && !profile?.is_locked && !profile?.transfer_blocked ? (
+                        <p className="px-4 py-8 text-center text-xs text-gray-500">{language === 'vi' ? 'Không có thông báo' : 'No notifications'}</p>
+                      ) : (
+                        transactions.slice(0, 8).map(tx => {
+                          const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
+                          return (
+                            <div key={tx.id} className="px-4 py-3 hover:bg-gray-900/60 cursor-pointer" onClick={() => setActiveTab('history')}>
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <p className="text-xs font-medium truncate">
+                                    {tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? `${language === 'vi' ? 'Nhận từ' : 'From'} ${tx.sender_account}` : `${language === 'vi' ? 'Chuyển đến' : 'To'} ${tx.recipient_name}`)}
+                                  </p>
+                                  <p className="text-[10px] text-gray-500 mt-0.5">{new Date(tx.created_at).toLocaleString('vi-VN')}</p>
+                                </div>
+                                <div className="text-right shrink-0">
+                                  <p className={`text-xs font-bold ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
+                                    {isCredit ? '+' : '-'}{formatVND(tx.amount)}
+                                  </p>
+                                  <p className={`text-[9px] uppercase tracking-wider ${tx.status === 'completed' ? 'text-green-400' : tx.status === 'rejected' ? 'text-red-400' : 'text-amber-400'}`}>{tx.status}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    <button onClick={() => setActiveTab('history')} className="block w-full px-4 py-2.5 text-center text-xs text-bank-lightBlue hover:bg-gray-900 border-t border-gray-800 font-medium">
+                      {language === 'vi' ? 'Xem tất cả lịch sử →' : 'View all history →'}
+                    </button>
+                  </PopoverContent>
+                </Popover>
                 <div className="w-9 h-9 bg-gradient-to-br from-bank-blue to-bank-lightBlue rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md ring-2 ring-gray-900">
                   {userInitial}
                 </div>
