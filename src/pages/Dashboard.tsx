@@ -19,6 +19,7 @@ import {
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import jsPDF from 'jspdf';
+import vtbLogo from '@/assets/viettrustbank-logo.png';
 
 /* ──────────── Sidebar Menu Content ──────────── */
 const SidebarMenuContent = ({ menuItems, activeTab, onSelectTab }: { menuItems: any[]; activeTab: string; onSelectTab: (id: string) => void }) => {
@@ -251,50 +252,88 @@ const Dashboard = () => {
     fetchAll();
   };
 
-  const handleDownloadReceiptPDF = () => {
+  const handleDownloadReceiptPDF = async () => {
     if (!lastReceipt) return;
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 60;
-    doc.setFontSize(20); doc.setTextColor(10, 36, 99);
-    doc.text('Viet Trust Bank', pageWidth / 2, y, { align: 'center' });
-    y += 22;
-    doc.setFontSize(12); doc.setTextColor(100);
-    doc.text(language === 'vi' ? 'Bien Lai Giao Dich' : 'Transaction Receipt', pageWidth / 2, y, { align: 'center' });
-    y += 10;
-    doc.setDrawColor(10, 36, 99); doc.setLineWidth(1.5);
-    doc.line(60, y, pageWidth - 60, y);
-    y += 30;
-    doc.setFontSize(22); doc.setTextColor(10, 36, 99);
-    doc.text(formatVND(lastReceipt.amount), pageWidth / 2, y, { align: 'center' });
-    y += 18;
-    doc.setFontSize(10); doc.setTextColor(180, 100, 0);
-    doc.text(language === 'vi' ? 'Dang xu ly' : 'Processing', pageWidth / 2, y, { align: 'center' });
-    y += 30;
-    const rows: [string, string][] = [
-      [language === 'vi' ? 'Loai chuyen' : 'Type', String(lastReceipt.transferType)],
-      [language === 'vi' ? 'Ma giao dich' : 'Reference', lastReceipt.reference_number],
-      [language === 'vi' ? 'Nguoi gui' : 'Sender', lastReceipt.senderName],
-      [language === 'vi' ? 'TK gui' : 'From Account', lastReceipt.senderAccount],
-      [language === 'vi' ? 'Nguoi nhan' : 'Recipient', lastReceipt.recipient_name],
-      [language === 'vi' ? 'TK nhan' : 'To Account', lastReceipt.recipient_account],
-      [language === 'vi' ? 'Thoi gian' : 'Date', lastReceipt.date],
-    ];
-    doc.setFontSize(11);
-    rows.forEach(([label, value]) => {
-      doc.setTextColor(120); doc.text(label, 70, y);
-      doc.setTextColor(20); doc.text(String(value), pageWidth - 70, y, { align: 'right' });
+    let y = 50;
+
+    // Embed logo (centered)
+    try {
+      const img = await fetch(vtbLogo).then(r => r.blob()).then(blob => new Promise<string>((res) => {
+        const reader = new FileReader();
+        reader.onloadend = () => res(reader.result as string);
+        reader.readAsDataURL(blob);
+      }));
+      const logoW = 160, logoH = 48;
+      doc.addImage(img, 'PNG', (pageWidth - logoW) / 2, y, logoW, logoH);
+      y += logoH + 18;
+    } catch { y += 10; }
+
+    doc.setFontSize(11); doc.setTextColor(120);
+    doc.text(language === 'vi' ? 'BIEN LAI GIAO DICH CHINH THUC' : 'OFFICIAL TRANSACTION RECEIPT', pageWidth / 2, y, { align: 'center' });
+    y += 6;
+    doc.setDrawColor(10, 36, 99); doc.setLineWidth(2);
+    doc.line(60, y + 6, pageWidth - 60, y + 6);
+    y += 32;
+
+    // Amount block
+    doc.setFillColor(245, 248, 255);
+    doc.rect(60, y - 18, pageWidth - 120, 70, 'F');
+    doc.setFontSize(9); doc.setTextColor(100);
+    doc.text(language === 'vi' ? 'TONG SO TIEN' : 'TOTAL AMOUNT', pageWidth / 2, y - 2, { align: 'center' });
+    doc.setFontSize(24); doc.setTextColor(10, 36, 99);
+    doc.text(formatVND(lastReceipt.amount), pageWidth / 2, y + 24, { align: 'center' });
+    doc.setFontSize(9); doc.setTextColor(180, 100, 0);
+    doc.text(language === 'vi' ? '* DANG XU LY *' : '* PROCESSING *', pageWidth / 2, y + 42, { align: 'center' });
+    y += 80;
+
+    // Section header
+    const drawSection = (title: string) => {
+      doc.setFillColor(10, 36, 99);
+      doc.rect(60, y, pageWidth - 120, 18, 'F');
+      doc.setFontSize(9); doc.setTextColor(255);
+      doc.text(title, 70, y + 12);
+      y += 28;
+    };
+
+    const drawRow = (label: string, value: string) => {
+      doc.setFontSize(9); doc.setTextColor(120);
+      doc.text(label.toUpperCase(), 70, y);
+      doc.setFontSize(11); doc.setTextColor(20);
+      doc.text(String(value || '-'), pageWidth - 70, y, { align: 'right' });
       doc.setDrawColor(230); doc.setLineWidth(0.5);
-      doc.line(60, y + 6, pageWidth - 60, y + 6);
+      doc.line(60, y + 8, pageWidth - 60, y + 8);
       y += 22;
-    });
-    y += 20;
-    doc.setFontSize(9); doc.setTextColor(150);
-    doc.text('Viet Trust Bank (c) 2026', pageWidth / 2, y, { align: 'center' });
+    };
+
+    drawSection(language === 'vi' ? 'CHI TIET GIAO DICH' : 'TRANSACTION DETAILS');
+    drawRow(language === 'vi' ? 'Ma giao dich' : 'Reference No.', lastReceipt.reference_number);
+    drawRow(language === 'vi' ? 'Loai chuyen' : 'Transfer Type', String(lastReceipt.transferType).toUpperCase());
+    drawRow(language === 'vi' ? 'Thoi gian' : 'Date & Time', lastReceipt.date);
+    drawRow(language === 'vi' ? 'Trang thai' : 'Status', language === 'vi' ? 'Dang xu ly' : 'Processing');
+
+    y += 6;
+    drawSection(language === 'vi' ? 'NGUOI GUI' : 'SENDER');
+    drawRow(language === 'vi' ? 'Ho ten' : 'Full Name', lastReceipt.senderName);
+    drawRow(language === 'vi' ? 'So tai khoan' : 'Account No.', lastReceipt.senderAccount);
+
+    y += 6;
+    drawSection(language === 'vi' ? 'NGUOI NHAN' : 'BENEFICIARY');
+    drawRow(language === 'vi' ? 'Ho ten' : 'Full Name', lastReceipt.recipient_name);
+    drawRow(language === 'vi' ? 'So tai khoan' : 'Account No.', lastReceipt.recipient_account);
+
+    y += 18;
+    doc.setDrawColor(10, 36, 99); doc.setLineWidth(0.8);
+    doc.line(60, y, pageWidth - 60, y);
+    y += 14;
+    doc.setFontSize(8); doc.setTextColor(120);
+    doc.text(language === 'vi' ? 'Bien lai nay duoc tao tu dong va co gia tri phap ly.' : 'This receipt is auto-generated and legally valid.', pageWidth / 2, y, { align: 'center' });
     y += 12;
-    doc.text(language === 'vi' ? 'Cam on ban da su dung dich vu' : 'Thank you for using our service', pageWidth / 2, y, { align: 'center' });
-    doc.save(`receipt-${lastReceipt.reference_number}.pdf`);
+    doc.text('VietTrustBank © 2026  ·  support@viettrusttaichinh.online', pageWidth / 2, y, { align: 'center' });
+    doc.save(`VTB-Receipt-${lastReceipt.reference_number}.pdf`);
   };
+
 
   const handlePrintReceipt = () => {
     const content = receiptRef.current;
@@ -431,7 +470,8 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-3">
               {transactions.slice(0, 5).map((tx) => {
-                const isCredit = tx.recipient_id === user!.id;
+                const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
+                const dispName = tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? tx.sender_account : tx.recipient_name);
                 return (
                   <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-800/50 last:border-0">
                     <div className="flex items-center gap-3">
@@ -439,13 +479,13 @@ const Dashboard = () => {
                         {isCredit ? <ArrowDownRight className="w-5 h-5 text-green-400" /> : <ArrowUpRight className="w-5 h-5 text-red-400" />}
                       </div>
                       <div>
-                        <p className="font-medium text-sm text-white">{isCredit ? tx.sender_account : tx.recipient_name}</p>
+                        <p className="font-medium text-sm text-white">{dispName}</p>
                         <p className="text-xs text-gray-400">{new Date(tx.created_at).toLocaleDateString('vi-VN')}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`font-semibold text-sm ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
-                        {isCredit ? '+' : '-'}{formatVND(tx.amount)}
+                      <p className={`font-bold text-sm ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
+                        {isCredit ? '+ ' : '- '}{formatVND(tx.amount)}
                       </p>
                       <p className={`text-xs ${tx.status === 'completed' ? 'text-green-400' : tx.status === 'rejected' ? 'text-red-400' : 'text-amber-400'}`}>
                         {tx.status === 'completed' ? (language === 'vi' ? 'Hoàn thành' : 'Completed') :
@@ -463,94 +503,129 @@ const Dashboard = () => {
     </div>
   );
 
-  const inputClass = "bg-black border-gray-800 text-white placeholder:text-gray-500";
-  const labelClass = "text-sm font-medium text-gray-300";
+  const inputClass = "bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 h-11 w-full max-w-full";
+  const labelClass = "text-xs font-semibold text-gray-300 uppercase tracking-wide";
+  const fieldWrap = "space-y-1.5 min-w-0";
+  const sectionHeader = (title: string) => (
+    <div className="flex items-center gap-2 pt-2 pb-1">
+      <div className="h-px flex-1 bg-gray-800" />
+      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{title}</span>
+      <div className="h-px flex-1 bg-gray-800" />
+    </div>
+  );
 
   const renderDomesticForm = () => (
-    <div className="space-y-4">
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : "Recipient's Full Name"} *</label><Input value={domesticForm.recipientName} onChange={e => setDomesticForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account Number'} *</label><Input value={domesticForm.recipientAccount} onChange={e => setDomesticForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} placeholder="VTB-XXXXXXXX" /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={domesticForm.bankName} onChange={e => setDomesticForm(p => ({...p, bankName: e.target.value}))} className={inputClass} placeholder="Vietcombank, Techcombank..." /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Chi nhánh' : 'Branch Name'}</label><Input value={domesticForm.branchName} onChange={e => setDomesticForm(p => ({...p, branchName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tiền (VNĐ)' : 'Amount (VND)'} *</label><Input type="number" value={domesticForm.amount} onChange={e => setDomesticForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" />
-        {account && <p className="text-xs text-gray-400">{language === 'vi' ? 'Số dư khả dụng' : 'Available'}: {formatVND(balance)}</p>}
+    <div className="space-y-5">
+      {sectionHeader(language === 'vi' ? 'Người nhận' : 'Recipient')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : 'Full Name'} *</label><Input value={domesticForm.recipientName} onChange={e => setDomesticForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account Number'} *</label><Input value={domesticForm.recipientAccount} onChange={e => setDomesticForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} placeholder="VTB-XXXXXXXX" /></div>
       </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Nội dung chuyển khoản' : 'Transfer Description'}</label><Input value={domesticForm.description} onChange={e => setDomesticForm(p => ({...p, description: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2">
-        <label className={labelClass}>{language === 'vi' ? 'Phương thức' : 'Transfer Method'}</label>
-        <select value={domesticForm.method} onChange={e => setDomesticForm(p => ({...p, method: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
-          <option value="same_bank">{language === 'vi' ? 'Cùng ngân hàng (tức thì)' : 'Same bank (instant)'}</option>
-          <option value="napas">{language === 'vi' ? 'Liên ngân hàng (NAPAS)' : 'Interbank (NAPAS)'}</option>
-        </select>
+
+      {sectionHeader(language === 'vi' ? 'Ngân hàng' : 'Bank')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={domesticForm.bankName} onChange={e => setDomesticForm(p => ({...p, bankName: e.target.value}))} className={inputClass} placeholder="Vietcombank, Techcombank..." /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Chi nhánh' : 'Branch'}</label><Input value={domesticForm.branchName} onChange={e => setDomesticForm(p => ({...p, branchName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}>
+          <label className={labelClass}>{language === 'vi' ? 'Phương thức' : 'Method'}</label>
+          <select value={domesticForm.method} onChange={e => setDomesticForm(p => ({...p, method: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
+            <option value="same_bank">{language === 'vi' ? 'Cùng ngân hàng (tức thì)' : 'Same bank (instant)'}</option>
+            <option value="napas">{language === 'vi' ? 'Liên ngân hàng (NAPAS)' : 'Interbank (NAPAS)'}</option>
+          </select>
+        </div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Ngày chuyển' : 'Transfer Date'}</label><Input type="date" value={domesticForm.transferDate} onChange={e => setDomesticForm(p => ({...p, transferDate: e.target.value}))} className={inputClass} /></div>
       </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Ngày chuyển' : 'Transfer Date'}</label><Input type="date" value={domesticForm.transferDate} onChange={e => setDomesticForm(p => ({...p, transferDate: e.target.value}))} className={inputClass} /></div>
+
+      {sectionHeader(language === 'vi' ? 'Số tiền & Nội dung' : 'Amount & Note')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}>
+          <label className={labelClass}>{language === 'vi' ? 'Số tiền (VNĐ)' : 'Amount (VND)'} *</label>
+          <Input type="number" value={domesticForm.amount} onChange={e => setDomesticForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" />
+          {account && <p className="text-xs text-gray-500">{language === 'vi' ? 'Số dư' : 'Available'}: <span className="text-bank-lightBlue font-medium">{formatVND(balance)}</span></p>}
+        </div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Nội dung' : 'Description'}</label><Input value={domesticForm.description} onChange={e => setDomesticForm(p => ({...p, description: e.target.value}))} className={inputClass} /></div>
+      </div>
     </div>
   );
 
   const renderInternationalForm = () => (
-    <div className="space-y-4">
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : "Recipient's Full Name"} *</label><Input value={internationalForm.recipientName} onChange={e => setInternationalForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Địa chỉ người nhận' : "Recipient's Address"} *</label><Input value={internationalForm.recipientAddress} onChange={e => setInternationalForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tài khoản / IBAN' : 'Account Number / IBAN'} *</label><Input value={internationalForm.recipientAccount} onChange={e => setInternationalForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={internationalForm.bankName} onChange={e => setInternationalForm(p => ({...p, bankName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Địa chỉ ngân hàng' : 'Bank Address'}</label><Input value={internationalForm.bankAddress} onChange={e => setInternationalForm(p => ({...p, bankAddress: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>SWIFT/BIC Code *</label><Input value={internationalForm.swiftCode} onChange={e => setInternationalForm(p => ({...p, swiftCode: e.target.value}))} className={inputClass} placeholder="e.g. BFTVVNVX" /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Ngân hàng trung gian' : 'Intermediary Bank'}</label><Input value={internationalForm.intermediaryBank} onChange={e => setInternationalForm(p => ({...p, intermediaryBank: e.target.value}))} className={inputClass} /></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
+    <div className="space-y-5">
+      {sectionHeader(language === 'vi' ? 'Người nhận' : 'Recipient')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : 'Full Name'} *</label><Input value={internationalForm.recipientName} onChange={e => setInternationalForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>IBAN / Account *</label><Input value={internationalForm.recipientAccount} onChange={e => setInternationalForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ' : 'Address'} *</label><Input value={internationalForm.recipientAddress} onChange={e => setInternationalForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
+      </div>
+
+      {sectionHeader(language === 'vi' ? 'Ngân hàng nhận' : 'Beneficiary Bank')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={internationalForm.bankName} onChange={e => setInternationalForm(p => ({...p, bankName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>SWIFT / BIC *</label><Input value={internationalForm.swiftCode} onChange={e => setInternationalForm(p => ({...p, swiftCode: e.target.value}))} className={inputClass} placeholder="BFTVVNVX" /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ NH' : 'Bank Address'}</label><Input value={internationalForm.bankAddress} onChange={e => setInternationalForm(p => ({...p, bankAddress: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Trung gian' : 'Intermediary'}</label><Input value={internationalForm.intermediaryBank} onChange={e => setInternationalForm(p => ({...p, intermediaryBank: e.target.value}))} className={inputClass} /></div>
+      </div>
+
+      {sectionHeader(language === 'vi' ? 'Số tiền & Phí' : 'Amount & Fees')}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className={fieldWrap}>
           <label className={labelClass}>{language === 'vi' ? 'Tiền tệ' : 'Currency'}</label>
-          <select value={internationalForm.currency} onChange={e => setInternationalForm(p => ({...p, currency: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
+          <select value={internationalForm.currency} onChange={e => setInternationalForm(p => ({...p, currency: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
             <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="JPY">JPY</option><option value="VND">VND</option>
           </select>
         </div>
-        <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tiền' : 'Amount'} *</label><Input type="number" value={internationalForm.amount} onChange={e => setInternationalForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" /></div>
-      </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Mục đích chuyển' : 'Transfer Purpose'} *</label><Input value={internationalForm.purpose} onChange={e => setInternationalForm(p => ({...p, purpose: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2">
-        <label className={labelClass}>{language === 'vi' ? 'Phí chuyển' : 'Fee Option'}</label>
-        <select value={internationalForm.feeOption} onChange={e => setInternationalForm(p => ({...p, feeOption: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
-          <option value="OUR">OUR ({language === 'vi' ? 'Người gửi trả' : 'Sender pays all'})</option>
-          <option value="SHA">SHA ({language === 'vi' ? 'Chia sẻ' : 'Shared'})</option>
-          <option value="BEN">BEN ({language === 'vi' ? 'Người nhận trả' : 'Receiver pays'})</option>
-        </select>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tiền' : 'Amount'} *</label><Input type="number" value={internationalForm.amount} onChange={e => setInternationalForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" /></div>
+        <div className={fieldWrap}>
+          <label className={labelClass}>{language === 'vi' ? 'Phí' : 'Fee'}</label>
+          <select value={internationalForm.feeOption} onChange={e => setInternationalForm(p => ({...p, feeOption: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
+            <option value="OUR">OUR</option><option value="SHA">SHA</option><option value="BEN">BEN</option>
+          </select>
+        </div>
+        <div className={`${fieldWrap} col-span-2 sm:col-span-3`}><label className={labelClass}>{language === 'vi' ? 'Mục đích' : 'Purpose'} *</label><Input value={internationalForm.purpose} onChange={e => setInternationalForm(p => ({...p, purpose: e.target.value}))} className={inputClass} /></div>
       </div>
     </div>
   );
 
   const renderWireForm = () => (
-    <div className="space-y-4">
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : "Recipient's Full Name"} *</label><Input value={wireForm.recipientName} onChange={e => setWireForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account Number'} *</label><Input value={wireForm.recipientAccount} onChange={e => setWireForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Tên ngân hàng' : 'Bank Name'} *</label><Input value={wireForm.bankName} onChange={e => setWireForm(p => ({...p, bankName: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Địa chỉ ngân hàng' : 'Bank Address'}</label><Input value={wireForm.bankAddress} onChange={e => setWireForm(p => ({...p, bankAddress: e.target.value}))} className={inputClass} /></div>
-      <div className="space-y-2"><label className={labelClass}>SWIFT/BIC Code *</label><Input value={wireForm.swiftCode} onChange={e => setWireForm(p => ({...p, swiftCode: e.target.value}))} className={inputClass} placeholder="e.g. BFTVVNVX" /></div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Địa chỉ người nhận' : "Recipient's Address"}</label><Input value={wireForm.recipientAddress} onChange={e => setWireForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
+    <div className="space-y-5">
+      {sectionHeader(language === 'vi' ? 'Người nhận' : 'Recipient')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên' : 'Full Name'} *</label><Input value={wireForm.recipientName} onChange={e => setWireForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account'} *</label><Input value={wireForm.recipientAccount} onChange={e => setWireForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ' : 'Address'}</label><Input value={wireForm.recipientAddress} onChange={e => setWireForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
+      </div>
+
+      {sectionHeader(language === 'vi' ? 'Ngân hàng' : 'Bank')}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên NH' : 'Bank Name'} *</label><Input value={wireForm.bankName} onChange={e => setWireForm(p => ({...p, bankName: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>SWIFT / BIC *</label><Input value={wireForm.swiftCode} onChange={e => setWireForm(p => ({...p, swiftCode: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ NH' : 'Bank Address'}</label><Input value={wireForm.bankAddress} onChange={e => setWireForm(p => ({...p, bankAddress: e.target.value}))} className={inputClass} /></div>
+      </div>
+
+      {sectionHeader(language === 'vi' ? 'Số tiền & Tùy chọn' : 'Amount & Options')}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className={fieldWrap}>
           <label className={labelClass}>{language === 'vi' ? 'Tiền tệ' : 'Currency'}</label>
-          <select value={wireForm.currency} onChange={e => setWireForm(p => ({...p, currency: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
+          <select value={wireForm.currency} onChange={e => setWireForm(p => ({...p, currency: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
             <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="JPY">JPY</option><option value="VND">VND</option>
           </select>
         </div>
-        <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Số tiền' : 'Amount'} *</label><Input type="number" value={wireForm.amount} onChange={e => setWireForm(p => ({...p, amount: e.target.value}))} className={inputClass} placeholder="0" /></div>
-      </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Mục đích' : 'Payment Purpose'} *</label><Input value={wireForm.purpose} onChange={e => setWireForm(p => ({...p, purpose: e.target.value}))} className={inputClass} /></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tiền' : 'Amount'} *</label><Input type="number" value={wireForm.amount} onChange={e => setWireForm(p => ({...p, amount: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}>
           <label className={labelClass}>{language === 'vi' ? 'Phí' : 'Charges'}</label>
-          <select value={wireForm.chargesOption} onChange={e => setWireForm(p => ({...p, chargesOption: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
+          <select value={wireForm.chargesOption} onChange={e => setWireForm(p => ({...p, chargesOption: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
             <option value="OUR">OUR</option><option value="SHA">SHA</option><option value="BEN">BEN</option>
           </select>
         </div>
-        <div className="space-y-2">
-          <label className={labelClass}>{language === 'vi' ? 'Loại thực hiện' : 'Execution'}</label>
-          <select value={wireForm.executionType} onChange={e => setWireForm(p => ({...p, executionType: e.target.value}))} className={`w-full h-10 rounded-md border px-3 ${inputClass}`}>
+        <div className={fieldWrap}>
+          <label className={labelClass}>{language === 'vi' ? 'Thực hiện' : 'Execution'}</label>
+          <select value={wireForm.executionType} onChange={e => setWireForm(p => ({...p, executionType: e.target.value}))} className={`rounded-md border px-3 ${inputClass}`}>
             <option value="normal">{language === 'vi' ? 'Thường' : 'Normal'}</option>
-            <option value="urgent">{language === 'vi' ? 'Khẩn cấp' : 'Urgent'}</option>
+            <option value="urgent">{language === 'vi' ? 'Khẩn' : 'Urgent'}</option>
           </select>
         </div>
+        <div className={`${fieldWrap} col-span-2 sm:col-span-3`}><label className={labelClass}>{language === 'vi' ? 'Mục đích' : 'Purpose'} *</label><Input value={wireForm.purpose} onChange={e => setWireForm(p => ({...p, purpose: e.target.value}))} className={inputClass} /></div>
+        <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Ngày' : 'Date'}</label><Input type="date" value={wireForm.transferDate} onChange={e => setWireForm(p => ({...p, transferDate: e.target.value}))} className={inputClass} /></div>
       </div>
-      <div className="space-y-2"><label className={labelClass}>{language === 'vi' ? 'Ngày chuyển' : 'Transfer Date'}</label><Input type="date" value={wireForm.transferDate} onChange={e => setWireForm(p => ({...p, transferDate: e.target.value}))} className={inputClass} /></div>
     </div>
   );
 
@@ -644,49 +719,86 @@ const Dashboard = () => {
       )}
 
       {transferStep === 'receipt' && lastReceipt && (
-        <Card className="border-0 shadow-md bg-gray-950 border-gray-800">
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-xl bg-white text-gray-900 overflow-hidden">
+          <CardContent className="p-0">
             <div ref={receiptRef}>
-              <div className="header text-center border-b-2 border-bank-blue pb-4 mb-6">
-                <h2 className="text-xl font-bold text-white">Việt Trust Bank</h2>
-                <p className="text-sm text-gray-400 mt-1">{language === 'vi' ? 'Biên Lai Giao Dịch' : 'Transaction Receipt'}</p>
+              {/* Branded header strip */}
+              <div className="bg-gradient-to-r from-bank-darkBlue via-bank-blue to-bank-lightBlue px-6 py-5 text-center">
+                <img src={vtbLogo} alt="VietTrustBank" className="h-10 mx-auto bg-white rounded-md px-3 py-1.5 shadow-md" />
+                <p className="text-white/80 text-[11px] uppercase tracking-[0.2em] mt-3 font-semibold">
+                  {language === 'vi' ? 'Biên Lai Giao Dịch Chính Thức' : 'Official Transaction Receipt'}
+                </p>
               </div>
-              <div className="text-center my-6">
-                <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Check className="w-8 h-8 text-amber-400" />
+
+              <div className="px-6 py-6">
+                {/* Status + Amount */}
+                <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200 rounded-2xl p-5 text-center mb-6">
+                  <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg shadow-amber-500/30">
+                    <Check className="w-7 h-7 text-white" />
+                  </div>
+                  <p className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold">{language === 'vi' ? 'Tổng số tiền' : 'Total Amount'}</p>
+                  <p className="text-3xl font-bold text-bank-darkBlue mt-1">{formatVND(lastReceipt.amount)}</p>
+                  <span className="inline-block mt-3 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-500 text-white">
+                    {language === 'vi' ? 'Đang xử lý' : 'Processing'}
+                  </span>
                 </div>
-                <p className="text-2xl font-bold text-white">{formatVND(lastReceipt.amount)}</p>
-                <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">
-                  {language === 'vi' ? 'Đang xử lý' : 'Processing'}
-                </span>
-              </div>
-              <div className="space-y-3 text-sm">
+
+                {/* Sections */}
                 {[
-                  [language === 'vi' ? 'Loại chuyển' : 'Type', lastReceipt.transferType === 'domestic' ? (language === 'vi' ? 'Nội địa' : 'Domestic') : lastReceipt.transferType === 'international' ? (language === 'vi' ? 'Quốc tế' : 'International') : 'Wire/TT'],
-                  [language === 'vi' ? 'Mã giao dịch' : 'Reference', lastReceipt.reference_number],
-                  [language === 'vi' ? 'Người gửi' : 'Sender', lastReceipt.senderName],
-                  [language === 'vi' ? 'TK gửi' : 'From Account', lastReceipt.senderAccount],
-                  [language === 'vi' ? 'Người nhận' : 'Recipient', lastReceipt.recipient_name],
-                  [language === 'vi' ? 'TK nhận' : 'To Account', lastReceipt.recipient_account],
-                  [language === 'vi' ? 'Thời gian' : 'Date', lastReceipt.date],
-                ].map(([label, value], i) => (
-                  <div key={i} className="flex justify-between py-2 border-b border-gray-800/50">
-                    <span className="text-gray-400">{label}</span>
-                    <span className="font-medium text-white font-mono">{value}</span>
+                  {
+                    title: language === 'vi' ? 'Chi tiết giao dịch' : 'Transaction Details',
+                    rows: [
+                      [language === 'vi' ? 'Mã giao dịch' : 'Reference No.', lastReceipt.reference_number],
+                      [language === 'vi' ? 'Loại chuyển' : 'Transfer Type', (lastReceipt.transferType === 'domestic' ? (language === 'vi' ? 'Nội địa (NAPAS)' : 'Domestic (NAPAS)') : lastReceipt.transferType === 'international' ? (language === 'vi' ? 'Quốc tế (SWIFT)' : 'International (SWIFT)') : 'Wire / TT')],
+                      [language === 'vi' ? 'Thời gian' : 'Date & Time', lastReceipt.date],
+                      [language === 'vi' ? 'Trạng thái' : 'Status', language === 'vi' ? 'Đang xử lý' : 'Processing'],
+                    ]
+                  },
+                  {
+                    title: language === 'vi' ? 'Người gửi' : 'Sender',
+                    rows: [
+                      [language === 'vi' ? 'Họ tên' : 'Full Name', lastReceipt.senderName],
+                      [language === 'vi' ? 'Số tài khoản' : 'Account No.', lastReceipt.senderAccount],
+                    ]
+                  },
+                  {
+                    title: language === 'vi' ? 'Người nhận' : 'Beneficiary',
+                    rows: [
+                      [language === 'vi' ? 'Họ tên' : 'Full Name', lastReceipt.recipient_name],
+                      [language === 'vi' ? 'Số tài khoản' : 'Account No.', lastReceipt.recipient_account],
+                    ]
+                  },
+                ].map((section, si) => (
+                  <div key={si} className="mb-5">
+                    <div className="bg-bank-darkBlue text-white text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-t-md">
+                      {section.title}
+                    </div>
+                    <div className="border border-t-0 border-gray-200 rounded-b-md divide-y divide-gray-100">
+                      {section.rows.map(([label, value], i) => (
+                        <div key={i} className="flex justify-between gap-3 px-3 py-2.5 text-sm">
+                          <span className="text-gray-500 text-xs uppercase tracking-wide">{label}</span>
+                          <span className="font-semibold text-gray-900 font-mono text-right break-all">{value}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
-              </div>
-              <div className="footer text-center mt-6 text-xs text-gray-500">
-                <p>Việt Trust Bank © 2026</p>
-                <p>{language === 'vi' ? 'Cảm ơn bạn đã sử dụng dịch vụ' : 'Thank you for using our service'}</p>
+
+                {/* Footer */}
+                <div className="border-t-2 border-dashed border-gray-200 mt-6 pt-4 text-center text-xs text-gray-500 space-y-1">
+                  <p className="font-semibold text-bank-darkBlue">VietTrustBank © 2026</p>
+                  <p>{language === 'vi' ? 'Biên lai được tạo tự động và có giá trị pháp lý.' : 'This receipt is auto-generated and legally valid.'}</p>
+                  <p className="font-mono text-[10px] text-gray-400">support@viettrusttaichinh.online</p>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button variant="outline" onClick={handleDownloadReceiptPDF} className="flex-1 border-gray-600 text-gray-300">
+
+            <div className="bg-gray-50 border-t px-6 py-4 flex flex-col sm:flex-row gap-3">
+              <Button variant="outline" onClick={handleDownloadReceiptPDF} className="flex-1">
                 <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'Tải PDF' : 'Download PDF'}
               </Button>
-              <Button variant="outline" onClick={handlePrintReceipt} className="flex-1 border-gray-600 text-gray-300">
-                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'In biên lai' : 'Print'}
+              <Button variant="outline" onClick={handlePrintReceipt} className="flex-1">
+                <Printer className="w-4 h-4 mr-2" /> {language === 'vi' ? 'In' : 'Print'}
               </Button>
               <Button onClick={resetTransfer} className="flex-1 bg-gradient-to-r from-bank-darkBlue to-bank-blue text-white">
                 {language === 'vi' ? 'Giao dịch mới' : 'New Transfer'}
@@ -694,6 +806,33 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Processing overlay */}
+      {transferLoading && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-gray-950 border border-gray-800 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <img src={vtbLogo} alt="VTB" className="h-9 mx-auto bg-white rounded-md px-3 py-1.5 mb-5" />
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div className="absolute inset-0 rounded-full border-4 border-bank-blue/20" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-bank-lightBlue border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Send className="w-7 h-7 text-bank-lightBlue" />
+              </div>
+            </div>
+            <h3 className="text-white text-lg font-semibold mb-1">
+              {language === 'vi' ? 'Đang xử lý giao dịch' : 'Processing Transaction'}
+            </h3>
+            <p className="text-gray-400 text-sm">
+              {language === 'vi' ? 'Vui lòng không đóng cửa sổ này...' : 'Please do not close this window...'}
+            </p>
+            <div className="mt-5 flex justify-center gap-1">
+              <span className="w-1.5 h-1.5 bg-bank-lightBlue rounded-full animate-bounce" />
+              <span className="w-1.5 h-1.5 bg-bank-lightBlue rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+              <span className="w-1.5 h-1.5 bg-bank-lightBlue rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -707,7 +846,8 @@ const Dashboard = () => {
         ) : (
           <div className="space-y-3">
             {transactions.map((tx) => {
-              const isCredit = tx.recipient_id === user!.id;
+              const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
+              const dispName = tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? tx.sender_account : tx.recipient_name);
               return (
                 <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-800/50 last:border-0">
                   <div className="flex items-center gap-3">
@@ -715,13 +855,13 @@ const Dashboard = () => {
                       {isCredit ? <ArrowDownRight className="w-5 h-5 text-green-400" /> : <ArrowUpRight className="w-5 h-5 text-red-400" />}
                     </div>
                     <div>
-                      <p className="font-medium text-sm text-white">{isCredit ? tx.sender_account : tx.recipient_name}</p>
+                      <p className="font-medium text-sm text-white">{dispName}</p>
                       <p className="text-xs text-gray-400">{tx.reference_number} · {new Date(tx.created_at).toLocaleDateString('vi-VN')}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`font-semibold text-sm ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
-                      {isCredit ? '+' : '-'}{formatVND(tx.amount)}
+                    <p className={`font-bold text-sm ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
+                      {isCredit ? '+ ' : '- '}{formatVND(tx.amount)}
                     </p>
                     <p className={`text-xs ${tx.status === 'completed' ? 'text-green-400' : tx.status === 'rejected' ? 'text-red-400' : 'text-amber-400'}`}>
                       {tx.status === 'completed' ? (language === 'vi' ? 'Hoàn thành' : 'Completed') :
@@ -886,21 +1026,15 @@ const Dashboard = () => {
           </div>
         </Sidebar>
         <SidebarInset className="flex-1 bg-black">
-          <header className="sticky top-0 z-10 bg-black/95 backdrop-blur-md border-b border-gray-900 px-4 sm:px-6 py-3.5">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <SidebarTrigger className="text-gray-300 hover:text-white shrink-0" />
-                <div className="hidden sm:flex w-9 h-9 bg-gradient-to-br from-bank-gold to-amber-500 rounded-lg items-center justify-center text-white font-bold text-xs shadow-md shrink-0">
-                  VTB
-                </div>
-                <div className="min-w-0">
-                  <h1 className="text-base sm:text-lg font-semibold text-white truncate leading-tight">
-                    {menuItems.find(m => m.id === activeTab)?.title || 'Overview'}
-                  </h1>
-                  <p className="text-[11px] text-gray-500 truncate hidden sm:block">Việt Trust Bank · {language === 'vi' ? 'Ngân hàng số' : 'Digital Banking'}</p>
+          <header className="sticky top-0 z-10 bg-black/95 backdrop-blur-md border-b border-gray-900 px-4 sm:px-6 py-3">
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+              <SidebarTrigger className="text-gray-300 hover:text-white" />
+              <div className="flex justify-center">
+                <div className="bg-white rounded-lg px-3 py-1.5 shadow-md">
+                  <img src={vtbLogo} alt="VietTrustBank" className="h-7 sm:h-8 w-auto" />
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" className="relative text-gray-300 hover:text-white hover:bg-gray-900 h-9 w-9">
                   <Bell className="w-5 h-5" />
                   <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-bank-gold rounded-full" />
@@ -910,6 +1044,9 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
+            <p className="text-center text-[11px] text-gray-500 mt-1.5 truncate">
+              {menuItems.find(m => m.id === activeTab)?.title || 'Overview'} · {language === 'vi' ? 'Ngân hàng số' : 'Digital Banking'}
+            </p>
           </header>
           <main className="p-4 sm:p-6 max-w-7xl mx-auto w-full">{renderContent()}</main>
         </SidebarInset>
