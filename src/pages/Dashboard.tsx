@@ -1024,21 +1024,15 @@ const Dashboard = () => {
           </div>
         </Sidebar>
         <SidebarInset className="flex-1 bg-black">
-          <header className="sticky top-0 z-10 bg-black/95 backdrop-blur-md border-b border-gray-900 px-4 sm:px-6 py-3.5">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <SidebarTrigger className="text-gray-300 hover:text-white shrink-0" />
-                <div className="hidden sm:flex w-9 h-9 bg-gradient-to-br from-bank-gold to-amber-500 rounded-lg items-center justify-center text-white font-bold text-xs shadow-md shrink-0">
-                  VTB
-                </div>
-                <div className="min-w-0">
-                  <h1 className="text-base sm:text-lg font-semibold text-white truncate leading-tight">
-                    {menuItems.find(m => m.id === activeTab)?.title || 'Overview'}
-                  </h1>
-                  <p className="text-[11px] text-gray-500 truncate hidden sm:block">Việt Trust Bank · {language === 'vi' ? 'Ngân hàng số' : 'Digital Banking'}</p>
+          <header className="sticky top-0 z-10 bg-black/95 backdrop-blur-md border-b border-gray-900 px-4 sm:px-6 py-3">
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+              <SidebarTrigger className="text-gray-300 hover:text-white" />
+              <div className="flex justify-center">
+                <div className="bg-white rounded-lg px-3 py-1.5 shadow-md">
+                  <img src={vtbLogo} alt="VietTrustBank" className="h-7 sm:h-8 w-auto" />
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" className="relative text-gray-300 hover:text-white hover:bg-gray-900 h-9 w-9">
                   <Bell className="w-5 h-5" />
                   <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-bank-gold rounded-full" />
@@ -1048,6 +1042,9 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
+            <p className="text-center text-[11px] text-gray-500 mt-1.5 truncate">
+              {menuItems.find(m => m.id === activeTab)?.title || 'Overview'} · {language === 'vi' ? 'Ngân hàng số' : 'Digital Banking'}
+            </p>
           </header>
           <main className="p-4 sm:p-6 max-w-7xl mx-auto w-full">{renderContent()}</main>
         </SidebarInset>
