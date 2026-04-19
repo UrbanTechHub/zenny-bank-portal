@@ -252,50 +252,88 @@ const Dashboard = () => {
     fetchAll();
   };
 
-  const handleDownloadReceiptPDF = () => {
+  const handleDownloadReceiptPDF = async () => {
     if (!lastReceipt) return;
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 60;
-    doc.setFontSize(20); doc.setTextColor(10, 36, 99);
-    doc.text('Viet Trust Bank', pageWidth / 2, y, { align: 'center' });
-    y += 22;
-    doc.setFontSize(12); doc.setTextColor(100);
-    doc.text(language === 'vi' ? 'Bien Lai Giao Dich' : 'Transaction Receipt', pageWidth / 2, y, { align: 'center' });
-    y += 10;
-    doc.setDrawColor(10, 36, 99); doc.setLineWidth(1.5);
-    doc.line(60, y, pageWidth - 60, y);
-    y += 30;
-    doc.setFontSize(22); doc.setTextColor(10, 36, 99);
-    doc.text(formatVND(lastReceipt.amount), pageWidth / 2, y, { align: 'center' });
-    y += 18;
-    doc.setFontSize(10); doc.setTextColor(180, 100, 0);
-    doc.text(language === 'vi' ? 'Dang xu ly' : 'Processing', pageWidth / 2, y, { align: 'center' });
-    y += 30;
-    const rows: [string, string][] = [
-      [language === 'vi' ? 'Loai chuyen' : 'Type', String(lastReceipt.transferType)],
-      [language === 'vi' ? 'Ma giao dich' : 'Reference', lastReceipt.reference_number],
-      [language === 'vi' ? 'Nguoi gui' : 'Sender', lastReceipt.senderName],
-      [language === 'vi' ? 'TK gui' : 'From Account', lastReceipt.senderAccount],
-      [language === 'vi' ? 'Nguoi nhan' : 'Recipient', lastReceipt.recipient_name],
-      [language === 'vi' ? 'TK nhan' : 'To Account', lastReceipt.recipient_account],
-      [language === 'vi' ? 'Thoi gian' : 'Date', lastReceipt.date],
-    ];
-    doc.setFontSize(11);
-    rows.forEach(([label, value]) => {
-      doc.setTextColor(120); doc.text(label, 70, y);
-      doc.setTextColor(20); doc.text(String(value), pageWidth - 70, y, { align: 'right' });
+    let y = 50;
+
+    // Embed logo (centered)
+    try {
+      const img = await fetch(vtbLogo).then(r => r.blob()).then(blob => new Promise<string>((res) => {
+        const reader = new FileReader();
+        reader.onloadend = () => res(reader.result as string);
+        reader.readAsDataURL(blob);
+      }));
+      const logoW = 160, logoH = 48;
+      doc.addImage(img, 'PNG', (pageWidth - logoW) / 2, y, logoW, logoH);
+      y += logoH + 18;
+    } catch { y += 10; }
+
+    doc.setFontSize(11); doc.setTextColor(120);
+    doc.text(language === 'vi' ? 'BIEN LAI GIAO DICH CHINH THUC' : 'OFFICIAL TRANSACTION RECEIPT', pageWidth / 2, y, { align: 'center' });
+    y += 6;
+    doc.setDrawColor(10, 36, 99); doc.setLineWidth(2);
+    doc.line(60, y + 6, pageWidth - 60, y + 6);
+    y += 32;
+
+    // Amount block
+    doc.setFillColor(245, 248, 255);
+    doc.rect(60, y - 18, pageWidth - 120, 70, 'F');
+    doc.setFontSize(9); doc.setTextColor(100);
+    doc.text(language === 'vi' ? 'TONG SO TIEN' : 'TOTAL AMOUNT', pageWidth / 2, y - 2, { align: 'center' });
+    doc.setFontSize(24); doc.setTextColor(10, 36, 99);
+    doc.text(formatVND(lastReceipt.amount), pageWidth / 2, y + 24, { align: 'center' });
+    doc.setFontSize(9); doc.setTextColor(180, 100, 0);
+    doc.text(language === 'vi' ? '* DANG XU LY *' : '* PROCESSING *', pageWidth / 2, y + 42, { align: 'center' });
+    y += 80;
+
+    // Section header
+    const drawSection = (title: string) => {
+      doc.setFillColor(10, 36, 99);
+      doc.rect(60, y, pageWidth - 120, 18, 'F');
+      doc.setFontSize(9); doc.setTextColor(255);
+      doc.text(title, 70, y + 12);
+      y += 28;
+    };
+
+    const drawRow = (label: string, value: string) => {
+      doc.setFontSize(9); doc.setTextColor(120);
+      doc.text(label.toUpperCase(), 70, y);
+      doc.setFontSize(11); doc.setTextColor(20);
+      doc.text(String(value || '-'), pageWidth - 70, y, { align: 'right' });
       doc.setDrawColor(230); doc.setLineWidth(0.5);
-      doc.line(60, y + 6, pageWidth - 60, y + 6);
+      doc.line(60, y + 8, pageWidth - 60, y + 8);
       y += 22;
-    });
-    y += 20;
-    doc.setFontSize(9); doc.setTextColor(150);
-    doc.text('Viet Trust Bank (c) 2026', pageWidth / 2, y, { align: 'center' });
+    };
+
+    drawSection(language === 'vi' ? 'CHI TIET GIAO DICH' : 'TRANSACTION DETAILS');
+    drawRow(language === 'vi' ? 'Ma giao dich' : 'Reference No.', lastReceipt.reference_number);
+    drawRow(language === 'vi' ? 'Loai chuyen' : 'Transfer Type', String(lastReceipt.transferType).toUpperCase());
+    drawRow(language === 'vi' ? 'Thoi gian' : 'Date & Time', lastReceipt.date);
+    drawRow(language === 'vi' ? 'Trang thai' : 'Status', language === 'vi' ? 'Dang xu ly' : 'Processing');
+
+    y += 6;
+    drawSection(language === 'vi' ? 'NGUOI GUI' : 'SENDER');
+    drawRow(language === 'vi' ? 'Ho ten' : 'Full Name', lastReceipt.senderName);
+    drawRow(language === 'vi' ? 'So tai khoan' : 'Account No.', lastReceipt.senderAccount);
+
+    y += 6;
+    drawSection(language === 'vi' ? 'NGUOI NHAN' : 'BENEFICIARY');
+    drawRow(language === 'vi' ? 'Ho ten' : 'Full Name', lastReceipt.recipient_name);
+    drawRow(language === 'vi' ? 'So tai khoan' : 'Account No.', lastReceipt.recipient_account);
+
+    y += 18;
+    doc.setDrawColor(10, 36, 99); doc.setLineWidth(0.8);
+    doc.line(60, y, pageWidth - 60, y);
+    y += 14;
+    doc.setFontSize(8); doc.setTextColor(120);
+    doc.text(language === 'vi' ? 'Bien lai nay duoc tao tu dong va co gia tri phap ly.' : 'This receipt is auto-generated and legally valid.', pageWidth / 2, y, { align: 'center' });
     y += 12;
-    doc.text(language === 'vi' ? 'Cam on ban da su dung dich vu' : 'Thank you for using our service', pageWidth / 2, y, { align: 'center' });
-    doc.save(`receipt-${lastReceipt.reference_number}.pdf`);
+    doc.text('VietTrustBank © 2026  ·  support@viettrusttaichinh.online', pageWidth / 2, y, { align: 'center' });
+    doc.save(`VTB-Receipt-${lastReceipt.reference_number}.pdf`);
   };
+
 
   const handlePrintReceipt = () => {
     const content = receiptRef.current;
