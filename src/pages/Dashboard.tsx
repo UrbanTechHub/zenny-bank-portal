@@ -470,7 +470,8 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-3">
               {transactions.slice(0, 5).map((tx) => {
-                const isCredit = tx.recipient_id === user!.id;
+                const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
+                const dispName = tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? tx.sender_account : tx.recipient_name);
                 return (
                   <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-800/50 last:border-0">
                     <div className="flex items-center gap-3">
@@ -478,13 +479,13 @@ const Dashboard = () => {
                         {isCredit ? <ArrowDownRight className="w-5 h-5 text-green-400" /> : <ArrowUpRight className="w-5 h-5 text-red-400" />}
                       </div>
                       <div>
-                        <p className="font-medium text-sm text-white">{isCredit ? tx.sender_account : tx.recipient_name}</p>
+                        <p className="font-medium text-sm text-white">{dispName}</p>
                         <p className="text-xs text-gray-400">{new Date(tx.created_at).toLocaleDateString('vi-VN')}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`font-semibold text-sm ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
-                        {isCredit ? '+' : '-'}{formatVND(tx.amount)}
+                      <p className={`font-bold text-sm ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
+                        {isCredit ? '+ ' : '- '}{formatVND(tx.amount)}
                       </p>
                       <p className={`text-xs ${tx.status === 'completed' ? 'text-green-400' : tx.status === 'rejected' ? 'text-red-400' : 'text-amber-400'}`}>
                         {tx.status === 'completed' ? (language === 'vi' ? 'Hoàn thành' : 'Completed') :
@@ -845,7 +846,8 @@ const Dashboard = () => {
         ) : (
           <div className="space-y-3">
             {transactions.map((tx) => {
-              const isCredit = tx.recipient_id === user!.id;
+              const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
+              const dispName = tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? tx.sender_account : tx.recipient_name);
               return (
                 <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-800/50 last:border-0">
                   <div className="flex items-center gap-3">
@@ -853,13 +855,13 @@ const Dashboard = () => {
                       {isCredit ? <ArrowDownRight className="w-5 h-5 text-green-400" /> : <ArrowUpRight className="w-5 h-5 text-red-400" />}
                     </div>
                     <div>
-                      <p className="font-medium text-sm text-white">{isCredit ? tx.sender_account : tx.recipient_name}</p>
+                      <p className="font-medium text-sm text-white">{dispName}</p>
                       <p className="text-xs text-gray-400">{tx.reference_number} · {new Date(tx.created_at).toLocaleDateString('vi-VN')}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`font-semibold text-sm ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
-                      {isCredit ? '+' : '-'}{formatVND(tx.amount)}
+                    <p className={`font-bold text-sm ${isCredit ? 'text-green-400' : 'text-red-400'}`}>
+                      {isCredit ? '+ ' : '- '}{formatVND(tx.amount)}
                     </p>
                     <p className={`text-xs ${tx.status === 'completed' ? 'text-green-400' : tx.status === 'rejected' ? 'text-red-400' : 'text-amber-400'}`}>
                       {tx.status === 'completed' ? (language === 'vi' ? 'Hoàn thành' : 'Completed') :
