@@ -111,16 +111,20 @@ const Dashboard = () => {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [profileRes, accountRes, txRes, pinRes] = await Promise.all([
+    const [profileRes, accountRes, txRes, pinRes, allProfilesRes] = await Promise.all([
       supabase.from('profiles').select('*').eq('user_id', user!.id).maybeSingle(),
       supabase.from('accounts').select('*').eq('user_id', user!.id).maybeSingle(),
       supabase.from('transactions').select('*').or(`sender_id.eq.${user!.id},recipient_id.eq.${user!.id}`).order('created_at', { ascending: false }).limit(50),
       supabase.from('transfer_pins').select('id').eq('user_id', user!.id).maybeSingle(),
+      supabase.from('profiles').select('user_id, full_name'),
     ]);
     setProfile(profileRes.data);
     setAccount(accountRes.data);
     setTransactions(txRes.data || []);
     setHasPin(!!pinRes.data);
+    const map: Record<string, string> = {};
+    (allProfilesRes.data || []).forEach((p: any) => { if (p.user_id) map[p.user_id] = p.full_name || ''; });
+    setProfilesMap(map);
     setLoading(false);
   };
 
@@ -359,9 +363,9 @@ const Dashboard = () => {
 
   const resetTransfer = () => {
     setTransferStep('form');
-    setDomesticForm({ recipientName: '', recipientAccount: '', bankName: '', branchName: '', amount: '', description: '', method: 'same_bank', transferDate: new Date().toISOString().split('T')[0] });
-    setInternationalForm({ recipientName: '', recipientAddress: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', intermediaryBank: '', currency: 'USD', amount: '', purpose: '', feeOption: 'SHA' });
-    setWireForm({ recipientName: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', recipientAddress: '', amount: '', currency: 'USD', purpose: '', chargesOption: 'SHA', executionType: 'normal', transferDate: new Date().toISOString().split('T')[0] });
+    setDomesticForm({ recipientName: '', recipientAccount: '', recipientEmail: '', bankName: '', branchName: '', amount: '', description: '', method: 'same_bank', transferDate: new Date().toISOString().split('T')[0] });
+    setInternationalForm({ recipientName: '', recipientEmail: '', recipientAddress: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', intermediaryBank: '', currency: 'USD', amount: '', purpose: '', feeOption: 'SHA' });
+    setWireForm({ recipientName: '', recipientEmail: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', recipientAddress: '', amount: '', currency: 'USD', purpose: '', chargesOption: 'SHA', executionType: 'normal', transferDate: new Date().toISOString().split('T')[0] });
     setLastReceipt(null);
   };
 
@@ -369,16 +373,6 @@ const Dashboard = () => {
 
   const renderOverview = () => (
     <div className="space-y-6">
-      {profile?.is_locked && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3">
-          <ShieldAlert className="w-6 h-6 text-red-500 flex-shrink-0" />
-          <div>
-            <p className="text-red-400 font-semibold text-sm">{language === 'vi' ? 'Cảnh báo: Tài khoản sẽ bị khóa' : 'Warning: Account will be locked'}</p>
-            <p className="text-red-400/70 text-xs">{language === 'vi' ? 'Phát hiện hoạt động đáng ngờ. Bạn sẽ bị đăng xuất tự động.' : 'Suspicious activity detected. You will be logged out automatically.'}</p>
-          </div>
-        </div>
-      )}
-
       {/* Balance Hero — inspired by reference */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-bank-darkBlue via-bank-blue to-bank-lightBlue p-6 text-white shadow-xl">
         <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
