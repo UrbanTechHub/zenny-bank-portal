@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import jsPDF from 'jspdf';
 import vtbLogo from '@/assets/viettrustbank-logo.png';
+import { sendRecipientNotification } from '@/lib/emailjs';
 
 /* ──────────── Sidebar Menu Content ──────────── */
 const SidebarMenuContent = ({ menuItems, activeTab, onSelectTab }: { menuItems: any[]; activeTab: string; onSelectTab: (id: string) => void }) => {
@@ -51,15 +52,16 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [account, setAccount] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [profilesMap, setProfilesMap] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [showBalance, setShowBalance] = useState(true);
 
   // Transfer state
   const [transferType, setTransferType] = useState<'domestic' | 'international' | 'wire'>('domestic');
-  const [domesticForm, setDomesticForm] = useState({ recipientName: '', recipientAccount: '', bankName: '', branchName: '', amount: '', description: '', method: 'same_bank', transferDate: new Date().toISOString().split('T')[0] });
-  const [internationalForm, setInternationalForm] = useState({ recipientName: '', recipientAddress: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', intermediaryBank: '', currency: 'USD', amount: '', purpose: '', feeOption: 'SHA' });
-  const [wireForm, setWireForm] = useState({ recipientName: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', recipientAddress: '', amount: '', currency: 'USD', purpose: '', chargesOption: 'SHA', executionType: 'normal', transferDate: new Date().toISOString().split('T')[0] });
+  const [domesticForm, setDomesticForm] = useState({ recipientName: '', recipientAccount: '', recipientEmail: '', bankName: '', branchName: '', amount: '', description: '', method: 'same_bank', transferDate: new Date().toISOString().split('T')[0] });
+  const [internationalForm, setInternationalForm] = useState({ recipientName: '', recipientEmail: '', recipientAddress: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', intermediaryBank: '', currency: 'USD', amount: '', purpose: '', feeOption: 'SHA' });
+  const [wireForm, setWireForm] = useState({ recipientName: '', recipientEmail: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', recipientAddress: '', amount: '', currency: 'USD', purpose: '', chargesOption: 'SHA', executionType: 'normal', transferDate: new Date().toISOString().split('T')[0] });
   const [transferStep, setTransferStep] = useState<'form' | 'pin' | 'receipt'>('form');
   const [pinCode, setPinCode] = useState('');
   const [transferLoading, setTransferLoading] = useState(false);
