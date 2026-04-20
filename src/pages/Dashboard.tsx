@@ -256,6 +256,32 @@ const Dashboard = () => {
     setTransferLoading(false);
     setPinCode('');
     toast.success(language === 'vi' ? 'Giao dịch đã được gửi để xử lý!' : 'Transaction submitted for processing!');
+
+    // Send recipient email notification (best-effort, never blocks UX)
+    const recipientEmail =
+      transferType === 'domestic' ? domesticForm.recipientEmail :
+      transferType === 'international' ? internationalForm.recipientEmail :
+      wireForm.recipientEmail;
+    const currency =
+      transferType === 'domestic' ? 'VND' :
+      transferType === 'international' ? internationalForm.currency :
+      wireForm.currency;
+    if (recipientEmail && /\S+@\S+\.\S+/.test(recipientEmail)) {
+      sendRecipientNotification({
+        to_email: recipientEmail,
+        to_name: td.recipientName,
+        from_name: displayName,
+        amount: formatVND(amount),
+        currency,
+        reference_number: refNum,
+        transfer_type: transferType.toUpperCase(),
+        date: new Date().toLocaleString('vi-VN'),
+        description: td.description,
+      })
+        .then((r: any) => { if (!r?.skipped) toast.success(language === 'vi' ? 'Đã gửi thông báo email cho người nhận' : 'Recipient notified via email'); })
+        .catch((e) => console.error('[EmailJS] send failed', e));
+    }
+
     fetchAll();
   };
 
