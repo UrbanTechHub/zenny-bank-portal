@@ -880,9 +880,9 @@ const Dashboard = () => {
             {transactions.map((tx) => {
               const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
               const dispName = tx.type === 'credit'
-                ? 'Credit Payment'
+                ? `Credit Payment${tx.recipient_name ? ` - ${tx.recipient_name}` : ''}`
                 : tx.type === 'debit'
-                  ? 'Debit Payment'
+                  ? `Debit Payment${tx.recipient_name ? ` - ${tx.recipient_name}` : ''}`
                   : isCredit
                     ? `${language === 'vi' ? 'Từ' : 'From'} ${profilesMap[tx.sender_id] || tx.sender_account}`
                     : `${language === 'vi' ? 'Đến' : 'To'} ${tx.recipient_name}`;
