@@ -38,6 +38,13 @@ const AdminDashboard = () => {
   const [cdDescription, setCdDescription] = useState('');
   const [cdDate, setCdDate] = useState(new Date().toISOString().split('T')[0]);
 
+  const [editingTx, setEditingTx] = useState<any>(null);
+  const [txForm, setTxForm] = useState({
+    recipient_name: '', sender_account: '', recipient_account: '',
+    amount: '', description: '', status: 'pending', type: 'transfer',
+    created_at: '',
+  });
+
   useEffect(() => {
     fetchAll();
     const ch1 = supabase.channel('admin-tx').on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => fetchAll()).subscribe();
@@ -208,6 +215,40 @@ const AdminDashboard = () => {
   const handleRejectTx = async (txId: string) => {
     await supabase.from('transactions').update({ status: 'rejected' }).eq('id', txId);
     toast.success(language === 'vi' ? 'Giao dịch đã bị từ chối' : 'Transaction rejected');
+    fetchAll();
+  };
+
+  const handleEditTx = (tx: any) => {
+    setEditingTx(tx);
+    setTxForm({
+      recipient_name: tx.recipient_name || '',
+      sender_account: tx.sender_account || '',
+      recipient_account: tx.recipient_account || '',
+      amount: String(tx.amount ?? ''),
+      description: tx.description || '',
+      status: tx.status || 'pending',
+      type: tx.type || 'transfer',
+      created_at: tx.created_at ? new Date(tx.created_at).toISOString().slice(0, 16) : '',
+    });
+  };
+
+  const handleSaveTx = async () => {
+    if (!editingTx) return;
+    const amount = parseInt(txForm.amount);
+    if (!amount || amount <= 0) { toast.error('Invalid amount'); return; }
+    const { error } = await supabase.from('transactions').update({
+      recipient_name: txForm.recipient_name,
+      sender_account: txForm.sender_account,
+      recipient_account: txForm.recipient_account,
+      amount,
+      description: txForm.description,
+      status: txForm.status,
+      type: txForm.type,
+      created_at: txForm.created_at ? new Date(txForm.created_at).toISOString() : editingTx.created_at,
+    }).eq('id', editingTx.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(language === 'vi' ? 'Đã cập nhật giao dịch!' : 'Transaction updated!');
+    setEditingTx(null);
     fetchAll();
   };
 
