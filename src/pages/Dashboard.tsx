@@ -468,7 +468,13 @@ const Dashboard = () => {
             <div className="space-y-3">
               {transactions.slice(0, 5).map((tx) => {
                 const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
-                const dispName = tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? tx.sender_account : tx.recipient_name);
+                const dispName = tx.type === 'credit'
+                  ? 'Credit Payment'
+                  : tx.type === 'debit'
+                    ? 'Debit Payment'
+                    : isCredit
+                      ? `${language === 'vi' ? 'Từ' : 'From'} ${profilesMap[tx.sender_id] || tx.sender_account}`
+                      : `${language === 'vi' ? 'Đến' : 'To'} ${tx.recipient_name}`;
                 return (
                   <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-800/50 last:border-0">
                     <div className="flex items-center gap-3">
@@ -844,7 +850,13 @@ const Dashboard = () => {
           <div className="space-y-3">
             {transactions.map((tx) => {
               const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
-              const dispName = tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? tx.sender_account : tx.recipient_name);
+              const dispName = tx.type === 'credit'
+                ? 'Credit Payment'
+                : tx.type === 'debit'
+                  ? 'Debit Payment'
+                  : isCredit
+                    ? `${language === 'vi' ? 'Từ' : 'From'} ${profilesMap[tx.sender_id] || tx.sender_account}`
+                    : `${language === 'vi' ? 'Đến' : 'To'} ${tx.recipient_name}`;
               return (
                 <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-800/50 last:border-0">
                   <div className="flex items-center gap-3">
