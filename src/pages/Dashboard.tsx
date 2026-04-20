@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import jsPDF from 'jspdf';
 import vtbLogo from '@/assets/viettrustbank-logo.png';
+import { sendRecipientNotification } from '@/lib/emailjs';
 
 /* ──────────── Sidebar Menu Content ──────────── */
 const SidebarMenuContent = ({ menuItems, activeTab, onSelectTab }: { menuItems: any[]; activeTab: string; onSelectTab: (id: string) => void }) => {
@@ -51,15 +52,16 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [account, setAccount] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [profilesMap, setProfilesMap] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [showBalance, setShowBalance] = useState(true);
 
   // Transfer state
   const [transferType, setTransferType] = useState<'domestic' | 'international' | 'wire'>('domestic');
-  const [domesticForm, setDomesticForm] = useState({ recipientName: '', recipientAccount: '', bankName: '', branchName: '', amount: '', description: '', method: 'same_bank', transferDate: new Date().toISOString().split('T')[0] });
-  const [internationalForm, setInternationalForm] = useState({ recipientName: '', recipientAddress: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', intermediaryBank: '', currency: 'USD', amount: '', purpose: '', feeOption: 'SHA' });
-  const [wireForm, setWireForm] = useState({ recipientName: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', recipientAddress: '', amount: '', currency: 'USD', purpose: '', chargesOption: 'SHA', executionType: 'normal', transferDate: new Date().toISOString().split('T')[0] });
+  const [domesticForm, setDomesticForm] = useState({ recipientName: '', recipientAccount: '', recipientEmail: '', bankName: '', branchName: '', amount: '', description: '', method: 'same_bank', transferDate: new Date().toISOString().split('T')[0] });
+  const [internationalForm, setInternationalForm] = useState({ recipientName: '', recipientEmail: '', recipientAddress: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', intermediaryBank: '', currency: 'USD', amount: '', purpose: '', feeOption: 'SHA' });
+  const [wireForm, setWireForm] = useState({ recipientName: '', recipientEmail: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', recipientAddress: '', amount: '', currency: 'USD', purpose: '', chargesOption: 'SHA', executionType: 'normal', transferDate: new Date().toISOString().split('T')[0] });
   const [transferStep, setTransferStep] = useState<'form' | 'pin' | 'receipt'>('form');
   const [pinCode, setPinCode] = useState('');
   const [transferLoading, setTransferLoading] = useState(false);
@@ -109,16 +111,20 @@ const Dashboard = () => {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [profileRes, accountRes, txRes, pinRes] = await Promise.all([
+    const [profileRes, accountRes, txRes, pinRes, allProfilesRes] = await Promise.all([
       supabase.from('profiles').select('*').eq('user_id', user!.id).maybeSingle(),
       supabase.from('accounts').select('*').eq('user_id', user!.id).maybeSingle(),
       supabase.from('transactions').select('*').or(`sender_id.eq.${user!.id},recipient_id.eq.${user!.id}`).order('created_at', { ascending: false }).limit(50),
       supabase.from('transfer_pins').select('id').eq('user_id', user!.id).maybeSingle(),
+      supabase.from('profiles').select('user_id, full_name'),
     ]);
     setProfile(profileRes.data);
     setAccount(accountRes.data);
     setTransactions(txRes.data || []);
     setHasPin(!!pinRes.data);
+    const map: Record<string, string> = {};
+    (allProfilesRes.data || []).forEach((p: any) => { if (p.user_id) map[p.user_id] = p.full_name || ''; });
+    setProfilesMap(map);
     setLoading(false);
   };
 
@@ -250,6 +256,32 @@ const Dashboard = () => {
     setTransferLoading(false);
     setPinCode('');
     toast.success(language === 'vi' ? 'Giao dịch đã được gửi để xử lý!' : 'Transaction submitted for processing!');
+
+    // Send recipient email notification (best-effort, never blocks UX)
+    const recipientEmail =
+      transferType === 'domestic' ? domesticForm.recipientEmail :
+      transferType === 'international' ? internationalForm.recipientEmail :
+      wireForm.recipientEmail;
+    const currency =
+      transferType === 'domestic' ? 'VND' :
+      transferType === 'international' ? internationalForm.currency :
+      wireForm.currency;
+    if (recipientEmail && /\S+@\S+\.\S+/.test(recipientEmail)) {
+      sendRecipientNotification({
+        to_email: recipientEmail,
+        to_name: td.recipientName,
+        from_name: displayName,
+        amount: formatVND(amount),
+        currency,
+        reference_number: refNum,
+        transfer_type: transferType.toUpperCase(),
+        date: new Date().toLocaleString('vi-VN'),
+        description: td.description,
+      })
+        .then((r: any) => { if (!r?.skipped) toast.success(language === 'vi' ? 'Đã gửi thông báo email cho người nhận' : 'Recipient notified via email'); })
+        .catch((e) => console.error('[EmailJS] send failed', e));
+    }
+
     fetchAll();
   };
 
@@ -357,9 +389,9 @@ const Dashboard = () => {
 
   const resetTransfer = () => {
     setTransferStep('form');
-    setDomesticForm({ recipientName: '', recipientAccount: '', bankName: '', branchName: '', amount: '', description: '', method: 'same_bank', transferDate: new Date().toISOString().split('T')[0] });
-    setInternationalForm({ recipientName: '', recipientAddress: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', intermediaryBank: '', currency: 'USD', amount: '', purpose: '', feeOption: 'SHA' });
-    setWireForm({ recipientName: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', recipientAddress: '', amount: '', currency: 'USD', purpose: '', chargesOption: 'SHA', executionType: 'normal', transferDate: new Date().toISOString().split('T')[0] });
+    setDomesticForm({ recipientName: '', recipientAccount: '', recipientEmail: '', bankName: '', branchName: '', amount: '', description: '', method: 'same_bank', transferDate: new Date().toISOString().split('T')[0] });
+    setInternationalForm({ recipientName: '', recipientEmail: '', recipientAddress: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', intermediaryBank: '', currency: 'USD', amount: '', purpose: '', feeOption: 'SHA' });
+    setWireForm({ recipientName: '', recipientEmail: '', recipientAccount: '', bankName: '', bankAddress: '', swiftCode: '', recipientAddress: '', amount: '', currency: 'USD', purpose: '', chargesOption: 'SHA', executionType: 'normal', transferDate: new Date().toISOString().split('T')[0] });
     setLastReceipt(null);
   };
 
@@ -367,16 +399,6 @@ const Dashboard = () => {
 
   const renderOverview = () => (
     <div className="space-y-6">
-      {profile?.is_locked && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3">
-          <ShieldAlert className="w-6 h-6 text-red-500 flex-shrink-0" />
-          <div>
-            <p className="text-red-400 font-semibold text-sm">{language === 'vi' ? 'Cảnh báo: Tài khoản sẽ bị khóa' : 'Warning: Account will be locked'}</p>
-            <p className="text-red-400/70 text-xs">{language === 'vi' ? 'Phát hiện hoạt động đáng ngờ. Bạn sẽ bị đăng xuất tự động.' : 'Suspicious activity detected. You will be logged out automatically.'}</p>
-          </div>
-        </div>
-      )}
-
       {/* Balance Hero — inspired by reference */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-bank-darkBlue via-bank-blue to-bank-lightBlue p-6 text-white shadow-xl">
         <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
@@ -472,7 +494,13 @@ const Dashboard = () => {
             <div className="space-y-3">
               {transactions.slice(0, 5).map((tx) => {
                 const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
-                const dispName = tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? tx.sender_account : tx.recipient_name);
+                const dispName = tx.type === 'credit'
+                  ? 'Credit Payment'
+                  : tx.type === 'debit'
+                    ? 'Debit Payment'
+                    : isCredit
+                      ? `${language === 'vi' ? 'Từ' : 'From'} ${profilesMap[tx.sender_id] || tx.sender_account}`
+                      : `${language === 'vi' ? 'Đến' : 'To'} ${tx.recipient_name}`;
                 return (
                   <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-800/50 last:border-0">
                     <div className="flex items-center gap-3">
@@ -521,6 +549,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : 'Full Name'} *</label><Input value={domesticForm.recipientName} onChange={e => setDomesticForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account Number'} *</label><Input value={domesticForm.recipientAccount} onChange={e => setDomesticForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} placeholder="VTB-XXXXXXXX" /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Email người nhận (thông báo)' : 'Recipient Email (notification)'}</label><Input type="email" value={domesticForm.recipientEmail} onChange={e => setDomesticForm(p => ({...p, recipientEmail: e.target.value}))} className={inputClass} placeholder="recipient@example.com" /></div>
       </div>
 
       {sectionHeader(language === 'vi' ? 'Ngân hàng' : 'Bank')}
@@ -556,6 +585,7 @@ const Dashboard = () => {
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : 'Full Name'} *</label><Input value={internationalForm.recipientName} onChange={e => setInternationalForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
         <div className={fieldWrap}><label className={labelClass}>IBAN / Account *</label><Input value={internationalForm.recipientAccount} onChange={e => setInternationalForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
         <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ' : 'Address'} *</label><Input value={internationalForm.recipientAddress} onChange={e => setInternationalForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Email người nhận (thông báo)' : 'Recipient Email (notification)'}</label><Input type="email" value={internationalForm.recipientEmail} onChange={e => setInternationalForm(p => ({...p, recipientEmail: e.target.value}))} className={inputClass} placeholder="recipient@example.com" /></div>
       </div>
 
       {sectionHeader(language === 'vi' ? 'Ngân hàng nhận' : 'Beneficiary Bank')}
@@ -593,6 +623,7 @@ const Dashboard = () => {
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên' : 'Full Name'} *</label><Input value={wireForm.recipientName} onChange={e => setWireForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account'} *</label><Input value={wireForm.recipientAccount} onChange={e => setWireForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
         <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ' : 'Address'}</label><Input value={wireForm.recipientAddress} onChange={e => setWireForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Email người nhận (thông báo)' : 'Recipient Email (notification)'}</label><Input type="email" value={wireForm.recipientEmail} onChange={e => setWireForm(p => ({...p, recipientEmail: e.target.value}))} className={inputClass} placeholder="recipient@example.com" /></div>
       </div>
 
       {sectionHeader(language === 'vi' ? 'Ngân hàng' : 'Bank')}
@@ -848,7 +879,13 @@ const Dashboard = () => {
           <div className="space-y-3">
             {transactions.map((tx) => {
               const isCredit = tx.recipient_id === user!.id || tx.type === 'credit';
-              const dispName = tx.type === 'credit' ? 'Credit Payment' : tx.type === 'debit' ? 'Debit Payment' : (isCredit ? tx.sender_account : tx.recipient_name);
+              const dispName = tx.type === 'credit'
+                ? 'Credit Payment'
+                : tx.type === 'debit'
+                  ? 'Debit Payment'
+                  : isCredit
+                    ? `${language === 'vi' ? 'Từ' : 'From'} ${profilesMap[tx.sender_id] || tx.sender_account}`
+                    : `${language === 'vi' ? 'Đến' : 'To'} ${tx.recipient_name}`;
               return (
                 <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-800/50 last:border-0">
                   <div className="flex items-center gap-3">

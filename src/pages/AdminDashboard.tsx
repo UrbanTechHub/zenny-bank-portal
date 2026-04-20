@@ -38,6 +38,13 @@ const AdminDashboard = () => {
   const [cdDescription, setCdDescription] = useState('');
   const [cdDate, setCdDate] = useState(new Date().toISOString().split('T')[0]);
 
+  const [editingTx, setEditingTx] = useState<any>(null);
+  const [txForm, setTxForm] = useState({
+    recipient_name: '', sender_account: '', recipient_account: '',
+    amount: '', description: '', status: 'pending', type: 'transfer',
+    created_at: '',
+  });
+
   useEffect(() => {
     fetchAll();
     const ch1 = supabase.channel('admin-tx').on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => fetchAll()).subscribe();
@@ -208,6 +215,40 @@ const AdminDashboard = () => {
   const handleRejectTx = async (txId: string) => {
     await supabase.from('transactions').update({ status: 'rejected' }).eq('id', txId);
     toast.success(language === 'vi' ? 'Giao dịch đã bị từ chối' : 'Transaction rejected');
+    fetchAll();
+  };
+
+  const handleEditTx = (tx: any) => {
+    setEditingTx(tx);
+    setTxForm({
+      recipient_name: tx.recipient_name || '',
+      sender_account: tx.sender_account || '',
+      recipient_account: tx.recipient_account || '',
+      amount: String(tx.amount ?? ''),
+      description: tx.description || '',
+      status: tx.status || 'pending',
+      type: tx.type || 'transfer',
+      created_at: tx.created_at ? new Date(tx.created_at).toISOString().slice(0, 16) : '',
+    });
+  };
+
+  const handleSaveTx = async () => {
+    if (!editingTx) return;
+    const amount = parseInt(txForm.amount);
+    if (!amount || amount <= 0) { toast.error('Invalid amount'); return; }
+    const { error } = await supabase.from('transactions').update({
+      recipient_name: txForm.recipient_name,
+      sender_account: txForm.sender_account,
+      recipient_account: txForm.recipient_account,
+      amount,
+      description: txForm.description,
+      status: txForm.status,
+      type: txForm.type,
+      created_at: txForm.created_at ? new Date(txForm.created_at).toISOString() : editingTx.created_at,
+    }).eq('id', editingTx.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(language === 'vi' ? 'Đã cập nhật giao dịch!' : 'Transaction updated!');
+    setEditingTx(null);
     fetchAll();
   };
 
@@ -577,6 +618,65 @@ const AdminDashboard = () => {
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader><CardTitle className="text-white">{language === 'vi' ? 'Tất cả giao dịch' : 'All Transactions'}</CardTitle></CardHeader>
               <CardContent>
+                {editingTx && (
+                  <Card className="bg-gray-900 border-blue-500/50 border-2 mb-4">
+                    <CardHeader>
+                      <CardTitle className="text-blue-400 flex items-center gap-2"><Edit className="w-4 h-4" />{language === 'vi' ? 'Chỉnh sửa giao dịch' : 'Edit Transaction'} <span className="text-xs text-gray-500 font-mono">{editingTx.reference_number}</span></CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400">{language === 'vi' ? 'Tên người nhận' : 'Recipient Name'}</label>
+                          <Input value={txForm.recipient_name} onChange={(e) => setTxForm(p => ({...p, recipient_name: e.target.value}))} className="bg-gray-700 border-gray-600 text-white" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400">{language === 'vi' ? 'Số tiền (VNĐ)' : 'Amount (VND)'}</label>
+                          <Input type="number" value={txForm.amount} onChange={(e) => setTxForm(p => ({...p, amount: e.target.value}))} className="bg-gray-700 border-gray-600 text-white" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400">{language === 'vi' ? 'TK người gửi' : 'Sender Account'}</label>
+                          <Input value={txForm.sender_account} onChange={(e) => setTxForm(p => ({...p, sender_account: e.target.value}))} className="bg-gray-700 border-gray-600 text-white" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400">{language === 'vi' ? 'TK người nhận' : 'Recipient Account'}</label>
+                          <Input value={txForm.recipient_account} onChange={(e) => setTxForm(p => ({...p, recipient_account: e.target.value}))} className="bg-gray-700 border-gray-600 text-white" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400">{language === 'vi' ? 'Trạng thái' : 'Status'}</label>
+                          <select value={txForm.status} onChange={(e) => setTxForm(p => ({...p, status: e.target.value}))} className="w-full h-10 rounded-md bg-gray-700 border border-gray-600 text-white px-3 text-sm">
+                            <option value="pending">pending</option>
+                            <option value="completed">completed</option>
+                            <option value="rejected">rejected</option>
+                            <option value="failed">failed</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-gray-400">{language === 'vi' ? 'Loại' : 'Type'}</label>
+                          <select value={txForm.type} onChange={(e) => setTxForm(p => ({...p, type: e.target.value}))} className="w-full h-10 rounded-md bg-gray-700 border border-gray-600 text-white px-3 text-sm">
+                            <option value="transfer">transfer</option>
+                            <option value="domestic">domestic</option>
+                            <option value="international">international</option>
+                            <option value="wire">wire</option>
+                            <option value="credit">credit</option>
+                            <option value="debit">debit</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <label className="text-xs text-gray-400">{language === 'vi' ? 'Ngày & giờ' : 'Date & Time'}</label>
+                          <Input type="datetime-local" value={txForm.created_at} onChange={(e) => setTxForm(p => ({...p, created_at: e.target.value}))} className="bg-gray-700 border-gray-600 text-white" />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <label className="text-xs text-gray-400">{language === 'vi' ? 'Mô tả' : 'Description'}</label>
+                          <Input value={txForm.description} onChange={(e) => setTxForm(p => ({...p, description: e.target.value}))} className="bg-gray-700 border-gray-600 text-white" />
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-2">
+                        <Button onClick={handleSaveTx} className="bg-green-600 hover:bg-green-700">{language === 'vi' ? 'Lưu' : 'Save'}</Button>
+                        <Button variant="outline" onClick={() => setEditingTx(null)} className="border-gray-600 text-gray-300">{language === 'vi' ? 'Hủy' : 'Cancel'}</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
@@ -586,6 +686,7 @@ const AdminDashboard = () => {
                         <th className="text-right py-3 px-2 font-medium">{language === 'vi' ? 'Số tiền' : 'Amount'}</th>
                         <th className="text-center py-3 px-2 font-medium">{language === 'vi' ? 'Trạng thái' : 'Status'}</th>
                         <th className="text-right py-3 px-2 font-medium hidden sm:table-cell">{language === 'vi' ? 'Ngày' : 'Date'}</th>
+                        <th className="text-right py-3 px-2 font-medium">{language === 'vi' ? 'Sửa' : 'Edit'}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -601,9 +702,14 @@ const AdminDashboard = () => {
                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${tx.status === 'completed' ? 'bg-green-500/20 text-green-400' : tx.status === 'pending' ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400'}`}>{tx.status}</span>
                           </td>
                           <td className="py-3 px-2 text-right text-gray-400 text-xs hidden sm:table-cell">{new Date(tx.created_at).toLocaleDateString('vi-VN')}</td>
+                          <td className="py-3 px-2 text-right">
+                            <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-400 hover:bg-blue-500/20" onClick={() => handleEditTx(tx)} title="Edit">
+                              <Edit className="w-3.5 h-3.5" />
+                            </Button>
+                          </td>
                         </tr>
                       ))}
-                      {allTransactions.length === 0 && <tr><td colSpan={5} className="text-center py-8 text-gray-500">{language === 'vi' ? 'Chưa có giao dịch' : 'No transactions'}</td></tr>}
+                      {allTransactions.length === 0 && <tr><td colSpan={6} className="text-center py-8 text-gray-500">{language === 'vi' ? 'Chưa có giao dịch' : 'No transactions'}</td></tr>}
                     </tbody>
                   </table>
                 </div>
