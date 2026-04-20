@@ -523,6 +523,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : 'Full Name'} *</label><Input value={domesticForm.recipientName} onChange={e => setDomesticForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account Number'} *</label><Input value={domesticForm.recipientAccount} onChange={e => setDomesticForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} placeholder="VTB-XXXXXXXX" /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Email người nhận (thông báo)' : 'Recipient Email (notification)'}</label><Input type="email" value={domesticForm.recipientEmail} onChange={e => setDomesticForm(p => ({...p, recipientEmail: e.target.value}))} className={inputClass} placeholder="recipient@example.com" /></div>
       </div>
 
       {sectionHeader(language === 'vi' ? 'Ngân hàng' : 'Bank')}
@@ -558,6 +559,7 @@ const Dashboard = () => {
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên người nhận' : 'Full Name'} *</label><Input value={internationalForm.recipientName} onChange={e => setInternationalForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
         <div className={fieldWrap}><label className={labelClass}>IBAN / Account *</label><Input value={internationalForm.recipientAccount} onChange={e => setInternationalForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
         <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ' : 'Address'} *</label><Input value={internationalForm.recipientAddress} onChange={e => setInternationalForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Email người nhận (thông báo)' : 'Recipient Email (notification)'}</label><Input type="email" value={internationalForm.recipientEmail} onChange={e => setInternationalForm(p => ({...p, recipientEmail: e.target.value}))} className={inputClass} placeholder="recipient@example.com" /></div>
       </div>
 
       {sectionHeader(language === 'vi' ? 'Ngân hàng nhận' : 'Beneficiary Bank')}
@@ -595,6 +597,7 @@ const Dashboard = () => {
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Tên' : 'Full Name'} *</label><Input value={wireForm.recipientName} onChange={e => setWireForm(p => ({...p, recipientName: e.target.value}))} className={inputClass} /></div>
         <div className={fieldWrap}><label className={labelClass}>{language === 'vi' ? 'Số tài khoản' : 'Account'} *</label><Input value={wireForm.recipientAccount} onChange={e => setWireForm(p => ({...p, recipientAccount: e.target.value}))} className={inputClass} /></div>
         <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Địa chỉ' : 'Address'}</label><Input value={wireForm.recipientAddress} onChange={e => setWireForm(p => ({...p, recipientAddress: e.target.value}))} className={inputClass} /></div>
+        <div className={`${fieldWrap} sm:col-span-2`}><label className={labelClass}>{language === 'vi' ? 'Email người nhận (thông báo)' : 'Recipient Email (notification)'}</label><Input type="email" value={wireForm.recipientEmail} onChange={e => setWireForm(p => ({...p, recipientEmail: e.target.value}))} className={inputClass} placeholder="recipient@example.com" /></div>
       </div>
 
       {sectionHeader(language === 'vi' ? 'Ngân hàng' : 'Bank')}
