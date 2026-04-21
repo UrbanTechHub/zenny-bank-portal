@@ -776,6 +776,37 @@ const AdminDashboard = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <AlertDialog open={!!deleteTxId} onOpenChange={(open) => !open && setDeleteTxId(null)}>
+        <AlertDialogContent className="bg-gray-900 border-gray-700 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">
+              {language === 'vi' ? 'Xóa giao dịch?' : 'Delete transaction?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {language === 'vi'
+                ? 'Hành động này không thể hoàn tác. Giao dịch sẽ bị xóa vĩnh viễn khỏi hệ thống.'
+                : 'This action cannot be undone. The transaction will be permanently removed.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
+              {language === 'vi' ? 'Hủy' : 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={async () => {
+                if (deleteTxId) {
+                  await handleDeleteTx(deleteTxId);
+                  setDeleteTxId(null);
+                }
+              }}
+            >
+              {language === 'vi' ? 'Xóa' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
