@@ -117,6 +117,23 @@ const AdminDashboard = () => {
     fetchAll();
   };
 
+  const handleToggleTransferLimit = async (userId: string, currentValue: boolean) => {
+    const { error } = await supabase.from('profiles').update({ transfer_limit_exceeded: !currentValue } as any).eq('user_id', userId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(!currentValue
+      ? (language === 'vi' ? 'Đã bật cảnh báo vượt hạn mức!' : 'Transfer limit warning enabled!')
+      : (language === 'vi' ? 'Đã tắt cảnh báo vượt hạn mức!' : 'Transfer limit warning disabled!'));
+    fetchAll();
+  };
+
+  const handleDeleteTx = async (txId: string) => {
+    if (!confirm(language === 'vi' ? 'Xóa giao dịch này?' : 'Delete this transaction?')) return;
+    const { error } = await supabase.from('transactions').delete().eq('id', txId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(language === 'vi' ? 'Đã xóa giao dịch' : 'Transaction deleted');
+    fetchAll();
+  };
+
   const handleEditUser = (user: any) => {
     setEditingUser(user);
     setEditForm({
