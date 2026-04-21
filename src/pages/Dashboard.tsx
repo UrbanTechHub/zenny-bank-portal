@@ -215,7 +215,7 @@ const Dashboard = () => {
       return;
     }
     if (profile?.transfer_limit_exceeded) {
-      toast.error(language === 'vi' ? 'Đã vượt hạn mức chuyển tiền 2 tuần. Vui lòng liên hệ ngân hàng.' : '2-week transfer limit exceeded. Please contact the bank.');
+      setShowLimitModal(true);
       return;
     }
     if (pinCode.length !== 6) {
@@ -1046,7 +1046,7 @@ const Dashboard = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-black">
-        {profile?.transfer_limit_exceeded && (
+        {showLimitModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div className="bg-gradient-to-b from-gray-900 to-gray-950 border border-amber-500/40 rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
               <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-500/20 flex items-center justify-center">
@@ -1060,9 +1060,14 @@ const Dashboard = () => {
                   ? 'Vui lòng liên hệ ngân hàng để được hỗ trợ.'
                   : 'Please contact the bank for assistance.'}
               </p>
-              <Button onClick={() => navigate('/contact')} className="w-full bg-bank-blue hover:bg-bank-blue/90">
-                {language === 'vi' ? 'Liên hệ ngân hàng' : 'Contact Bank'}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowLimitModal(false)} className="flex-1 border-gray-700 text-gray-300 hover:bg-gray-800">
+                  {language === 'vi' ? 'Đóng' : 'Close'}
+                </Button>
+                <Button onClick={() => { setShowLimitModal(false); navigate('/contact'); }} className="flex-1 bg-bank-blue hover:bg-bank-blue/90">
+                  {language === 'vi' ? 'Liên hệ ngân hàng' : 'Contact Bank'}
+                </Button>
+              </div>
             </div>
           </div>
         )}
