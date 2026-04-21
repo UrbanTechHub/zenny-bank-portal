@@ -132,7 +132,6 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteTx = async (txId: string) => {
-    if (!confirm(language === 'vi' ? 'Xóa giao dịch này?' : 'Delete this transaction?')) return;
     const { error } = await supabase.from('transactions').delete().eq('id', txId);
     if (error) { toast.error(error.message); return; }
     toast.success(language === 'vi' ? 'Đã xóa giao dịch' : 'Transaction deleted');
