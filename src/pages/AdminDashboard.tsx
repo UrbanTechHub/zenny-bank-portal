@@ -735,7 +735,7 @@ const AdminDashboard = () => {
                             <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-400 hover:bg-blue-500/20" onClick={() => handleEditTx(tx)} title="Edit">
                               <Edit className="w-3.5 h-3.5" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-7 w-7 text-red-400 hover:bg-red-500/20 ml-1" onClick={() => handleDeleteTx(tx.id)} title="Delete">
+                            <Button size="icon" variant="ghost" className="h-7 w-7 text-red-400 hover:bg-red-500/20 ml-1" onClick={() => setDeleteTxId(tx.id)} title="Delete">
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </td>
