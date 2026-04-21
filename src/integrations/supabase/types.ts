@@ -61,6 +61,7 @@ export type Database = {
           login_otp: string | null
           phone: string | null
           transfer_blocked: boolean
+          transfer_limit_exceeded: boolean
           updated_at: string
           user_id: string
         }
@@ -77,6 +78,7 @@ export type Database = {
           login_otp?: string | null
           phone?: string | null
           transfer_blocked?: boolean
+          transfer_limit_exceeded?: boolean
           updated_at?: string
           user_id: string
         }
@@ -93,6 +95,7 @@ export type Database = {
           login_otp?: string | null
           phone?: string | null
           transfer_blocked?: boolean
+          transfer_limit_exceeded?: boolean
           updated_at?: string
           user_id?: string
         }

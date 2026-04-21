@@ -213,6 +213,10 @@ const Dashboard = () => {
       toast.error(language === 'vi' ? 'Chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.');
       return;
     }
+    if (profile?.transfer_limit_exceeded) {
+      toast.error(language === 'vi' ? 'Đã vượt hạn mức chuyển tiền 2 tuần. Vui lòng liên hệ ngân hàng.' : '2-week transfer limit exceeded. Please contact the bank.');
+      return;
+    }
     if (pinCode.length !== 6) {
       toast.error(language === 'vi' ? 'Vui lòng nhập đầy đủ 6 chữ số' : 'Please enter all 6 digits');
       return;
@@ -1041,6 +1045,26 @@ const Dashboard = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-black">
+        {profile?.transfer_limit_exceeded && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div className="bg-gradient-to-b from-gray-900 to-gray-950 border border-amber-500/40 rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <AlertTriangle className="w-7 h-7 text-amber-400" />
+              </div>
+              <h2 className="text-lg font-bold text-white mb-2">
+                {language === 'vi' ? 'Đã vượt hạn mức chuyển tiền 2 tuần' : '2-Week Transfer Limit Exceeded'}
+              </h2>
+              <p className="text-sm text-gray-400 mb-5">
+                {language === 'vi'
+                  ? 'Vui lòng liên hệ ngân hàng để được hỗ trợ.'
+                  : 'Please contact the bank for assistance.'}
+              </p>
+              <Button onClick={() => navigate('/contact')} className="w-full bg-bank-blue hover:bg-bank-blue/90">
+                {language === 'vi' ? 'Liên hệ ngân hàng' : 'Contact Bank'}
+              </Button>
+            </div>
+          </div>
+        )}
         <Sidebar className="border-r border-gray-900 bg-black [&>div]:bg-black">
           <SidebarHeader className="p-4 border-b border-gray-900 bg-black">
             <div className="min-w-0">

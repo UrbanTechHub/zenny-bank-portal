@@ -11,7 +11,7 @@ import {
   Users, CreditCard, Settings, LogOut, BarChart3, Shield,
   Search, CheckCircle, XCircle,
   Activity, UserPlus, Globe, Ban, Edit, 
-  ArrowUpRight, ArrowDownRight, UserCheck, Lock, ShieldAlert
+  ArrowUpRight, ArrowDownRight, UserCheck, Lock, ShieldAlert, AlertTriangle, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -114,6 +114,23 @@ const AdminDashboard = () => {
     toast.success(!currentValue
       ? (language === 'vi' ? 'Đã chặn chuyển tiền!' : 'Transfer blocked!')
       : (language === 'vi' ? 'Đã bỏ chặn chuyển tiền!' : 'Transfer unblocked!'));
+    fetchAll();
+  };
+
+  const handleToggleTransferLimit = async (userId: string, currentValue: boolean) => {
+    const { error } = await supabase.from('profiles').update({ transfer_limit_exceeded: !currentValue } as any).eq('user_id', userId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(!currentValue
+      ? (language === 'vi' ? 'Đã bật cảnh báo vượt hạn mức!' : 'Transfer limit warning enabled!')
+      : (language === 'vi' ? 'Đã tắt cảnh báo vượt hạn mức!' : 'Transfer limit warning disabled!'));
+    fetchAll();
+  };
+
+  const handleDeleteTx = async (txId: string) => {
+    if (!confirm(language === 'vi' ? 'Xóa giao dịch này?' : 'Delete this transaction?')) return;
+    const { error } = await supabase.from('transactions').delete().eq('id', txId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(language === 'vi' ? 'Đã xóa giao dịch' : 'Transaction deleted');
     fetchAll();
   };
 
@@ -528,6 +545,11 @@ const AdminDashboard = () => {
                                     {language === 'vi' ? 'Chặn CK' : 'Blocked'}
                                   </span>
                                 )}
+                                {user.transfer_limit_exceeded && (
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400">
+                                    {language === 'vi' ? 'Vượt hạn mức' : 'Limit Exceeded'}
+                                  </span>
+                                )}
                               </div>
                             </td>
                             <td className="py-3 px-2 text-right">
@@ -546,6 +568,9 @@ const AdminDashboard = () => {
                                 </Button>
                                 <Button size="icon" variant="ghost" className={`h-7 w-7 ${user.transfer_blocked ? 'text-orange-400 hover:bg-orange-500/20' : 'text-gray-400 hover:bg-gray-500/20'}`} onClick={() => handleToggleTransferBlock(user.user_id, user.transfer_blocked)} title={user.transfer_blocked ? 'Unblock Transfer' : 'Block Transfer'}>
                                   <Lock className="w-3.5 h-3.5" />
+                                </Button>
+                                <Button size="icon" variant="ghost" className={`h-7 w-7 ${user.transfer_limit_exceeded ? 'text-yellow-400 hover:bg-yellow-500/20' : 'text-gray-400 hover:bg-gray-500/20'}`} onClick={() => handleToggleTransferLimit(user.user_id, user.transfer_limit_exceeded)} title={user.transfer_limit_exceeded ? 'Disable Limit Warning' : 'Enable 2-Week Limit Warning'}>
+                                  <AlertTriangle className="w-3.5 h-3.5" />
                                 </Button>
                                 <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-400 hover:bg-blue-500/20" onClick={() => handleEditUser(user)} title="Edit">
                                   <Edit className="w-3.5 h-3.5" />
@@ -705,6 +730,9 @@ const AdminDashboard = () => {
                           <td className="py-3 px-2 text-right">
                             <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-400 hover:bg-blue-500/20" onClick={() => handleEditTx(tx)} title="Edit">
                               <Edit className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button size="icon" variant="ghost" className="h-7 w-7 text-red-400 hover:bg-red-500/20 ml-1" onClick={() => handleDeleteTx(tx.id)} title="Delete">
+                              <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </td>
                         </tr>
