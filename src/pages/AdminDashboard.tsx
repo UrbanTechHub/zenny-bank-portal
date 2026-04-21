@@ -569,6 +569,9 @@ const AdminDashboard = () => {
                                 <Button size="icon" variant="ghost" className={`h-7 w-7 ${user.transfer_blocked ? 'text-orange-400 hover:bg-orange-500/20' : 'text-gray-400 hover:bg-gray-500/20'}`} onClick={() => handleToggleTransferBlock(user.user_id, user.transfer_blocked)} title={user.transfer_blocked ? 'Unblock Transfer' : 'Block Transfer'}>
                                   <Lock className="w-3.5 h-3.5" />
                                 </Button>
+                                <Button size="icon" variant="ghost" className={`h-7 w-7 ${user.transfer_limit_exceeded ? 'text-yellow-400 hover:bg-yellow-500/20' : 'text-gray-400 hover:bg-gray-500/20'}`} onClick={() => handleToggleTransferLimit(user.user_id, user.transfer_limit_exceeded)} title={user.transfer_limit_exceeded ? 'Disable Limit Warning' : 'Enable 2-Week Limit Warning'}>
+                                  <AlertTriangle className="w-3.5 h-3.5" />
+                                </Button>
                                 <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-400 hover:bg-blue-500/20" onClick={() => handleEditUser(user)} title="Edit">
                                   <Edit className="w-3.5 h-3.5" />
                                 </Button>
