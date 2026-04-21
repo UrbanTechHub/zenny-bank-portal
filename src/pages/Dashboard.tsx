@@ -213,6 +213,10 @@ const Dashboard = () => {
       toast.error(language === 'vi' ? 'Chuyển tiền đã bị chặn. Vui lòng liên hệ ngân hàng.' : 'Transfer blocked. Please contact the bank.');
       return;
     }
+    if (profile?.transfer_limit_exceeded) {
+      toast.error(language === 'vi' ? 'Đã vượt hạn mức chuyển tiền 2 tuần. Vui lòng liên hệ ngân hàng.' : '2-week transfer limit exceeded. Please contact the bank.');
+      return;
+    }
     if (pinCode.length !== 6) {
       toast.error(language === 'vi' ? 'Vui lòng nhập đầy đủ 6 chữ số' : 'Please enter all 6 digits');
       return;
