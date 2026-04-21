@@ -8,6 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Users, CreditCard, Settings, LogOut, BarChart3, Shield,
   Search, CheckCircle, XCircle,
   Activity, UserPlus, Globe, Ban, Edit, 
@@ -39,6 +43,7 @@ const AdminDashboard = () => {
   const [cdDate, setCdDate] = useState(new Date().toISOString().split('T')[0]);
 
   const [editingTx, setEditingTx] = useState<any>(null);
+  const [deleteTxId, setDeleteTxId] = useState<string | null>(null);
   const [txForm, setTxForm] = useState({
     recipient_name: '', sender_account: '', recipient_account: '',
     amount: '', description: '', status: 'pending', type: 'transfer',
@@ -127,7 +132,6 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteTx = async (txId: string) => {
-    if (!confirm(language === 'vi' ? 'Xóa giao dịch này?' : 'Delete this transaction?')) return;
     const { error } = await supabase.from('transactions').delete().eq('id', txId);
     if (error) { toast.error(error.message); return; }
     toast.success(language === 'vi' ? 'Đã xóa giao dịch' : 'Transaction deleted');
@@ -731,7 +735,7 @@ const AdminDashboard = () => {
                             <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-400 hover:bg-blue-500/20" onClick={() => handleEditTx(tx)} title="Edit">
                               <Edit className="w-3.5 h-3.5" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-7 w-7 text-red-400 hover:bg-red-500/20 ml-1" onClick={() => handleDeleteTx(tx.id)} title="Delete">
+                            <Button size="icon" variant="ghost" className="h-7 w-7 text-red-400 hover:bg-red-500/20 ml-1" onClick={() => setDeleteTxId(tx.id)} title="Delete">
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </td>
@@ -772,6 +776,37 @@ const AdminDashboard = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <AlertDialog open={!!deleteTxId} onOpenChange={(open) => !open && setDeleteTxId(null)}>
+        <AlertDialogContent className="bg-gray-900 border-gray-700 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">
+              {language === 'vi' ? 'Xóa giao dịch?' : 'Delete transaction?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {language === 'vi'
+                ? 'Hành động này không thể hoàn tác. Giao dịch sẽ bị xóa vĩnh viễn khỏi hệ thống.'
+                : 'This action cannot be undone. The transaction will be permanently removed.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
+              {language === 'vi' ? 'Hủy' : 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={async () => {
+                if (deleteTxId) {
+                  await handleDeleteTx(deleteTxId);
+                  setDeleteTxId(null);
+                }
+              }}
+            >
+              {language === 'vi' ? 'Xóa' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
