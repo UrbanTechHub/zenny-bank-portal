@@ -97,7 +97,29 @@ const Dashboard = () => {
         (payload) => setProfile(payload.new)
       )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    // Subscribe to transaction changes (e.g. admin deletions) so the list stays in sync
+    const txCh = supabase
+      .channel(`tx-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'transactions' },
+        (payload) => {
+          const oldId = (payload.old as any)?.id;
+          if (oldId) setTransactions((prev) => prev.filter((t) => t.id !== oldId));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'transactions' },
+        () => fetchAll()
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'transactions' },
+        () => fetchAll()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); supabase.removeChannel(txCh); };
   }, [user]);
 
   // Auto-logout if account is locked
