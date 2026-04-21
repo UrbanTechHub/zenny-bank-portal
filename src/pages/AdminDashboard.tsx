@@ -545,6 +545,11 @@ const AdminDashboard = () => {
                                     {language === 'vi' ? 'Chặn CK' : 'Blocked'}
                                   </span>
                                 )}
+                                {user.transfer_limit_exceeded && (
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400">
+                                    {language === 'vi' ? 'Vượt hạn mức' : 'Limit Exceeded'}
+                                  </span>
+                                )}
                               </div>
                             </td>
                             <td className="py-3 px-2 text-right">
