@@ -67,6 +67,7 @@ const Dashboard = () => {
   const [transferLoading, setTransferLoading] = useState(false);
   const [lastReceipt, setLastReceipt] = useState<any>(null);
   const [hasPin, setHasPin] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   // PIN setup
   const [showPinSetup, setShowPinSetup] = useState(false);
