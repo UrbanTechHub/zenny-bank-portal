@@ -43,6 +43,7 @@ const AdminDashboard = () => {
   const [cdDate, setCdDate] = useState(new Date().toISOString().split('T')[0]);
 
   const [editingTx, setEditingTx] = useState<any>(null);
+  const [deleteTxId, setDeleteTxId] = useState<string | null>(null);
   const [txForm, setTxForm] = useState({
     recipient_name: '', sender_account: '', recipient_account: '',
     amount: '', description: '', status: 'pending', type: 'transfer',
