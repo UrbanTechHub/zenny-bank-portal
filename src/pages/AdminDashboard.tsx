@@ -11,7 +11,7 @@ import {
   Users, CreditCard, Settings, LogOut, BarChart3, Shield,
   Search, CheckCircle, XCircle,
   Activity, UserPlus, Globe, Ban, Edit, 
-  ArrowUpRight, ArrowDownRight, UserCheck, Lock, ShieldAlert
+  ArrowUpRight, ArrowDownRight, UserCheck, Lock, ShieldAlert, AlertTriangle, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
