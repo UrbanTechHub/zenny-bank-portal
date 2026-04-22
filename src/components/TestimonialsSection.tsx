@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const testimonials = [
   { id: 1, name: "Nguyễn Văn Thành", position: "Chủ Doanh Nghiệp", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80", stars: 5, content: "Việt Trust Bank đã đóng vai trò quan trọng trong việc giúp tôi mở rộng doanh nghiệp. Dịch vụ cá nhân hóa đã vượt quá mong đợi." },
@@ -12,6 +13,7 @@ const testimonials = [
 ];
 
 const TestimonialsSection = () => {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const maxVisibleItems = 3;
   const sectionRef = useRef<HTMLElement>(null);
@@ -36,9 +38,9 @@ const TestimonialsSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className={cn("transform transition-all duration-700", isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10")}>
-            <p className="text-bank-blue font-semibold mb-3">Đánh Giá Từ Khách Hàng</p>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Khách Hàng Nói Gì Về Chúng Tôi</h2>
-            <p className="text-gray-600">Lắng nghe trực tiếp từ khách hàng quý giá của chúng tôi.</p>
+            <p className="text-bank-blue font-semibold mb-3">{t('tst.label')}</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('tst.heading')}</h2>
+            <p className="text-gray-600">{t('tst.desc')}</p>
           </div>
         </div>
         <div className={cn("flex justify-center mb-12 transition-all duration-1000", isVisible ? "opacity-100" : "opacity-0")}>
@@ -48,7 +50,7 @@ const TestimonialsSection = () => {
                 <img src={t.image} alt={t.name} className="w-full h-full object-cover" />
               </div>
             ))}
-            <div className="ml-2 flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700">+{testimonials.length - 5} Khách hàng</div>
+            <div className="ml-2 flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700">+{testimonials.length - 5} {t('tst.customers')}</div>
           </div>
         </div>
         <div className="relative">
@@ -80,7 +82,7 @@ const TestimonialsSection = () => {
           </div>
         </div>
         <div className={cn("mt-12 flex flex-wrap justify-center gap-6", isVisible ? "opacity-100" : "opacity-0")}>
-          {["Được tin tưởng bởi", "500,000+", "Khách Hàng"].map((text, i) => (<span key={i} className={cn("text-lg font-semibold", i === 1 ? "text-bank-blue" : "text-gray-600")}>{text}</span>))}
+          {[t('tst.trustedBy'), "500,000+", t('tst.customersLabel')].map((text, i) => (<span key={i} className={cn("text-lg font-semibold", i === 1 ? "text-bank-blue" : "text-gray-600")}>{text}</span>))}
         </div>
       </div>
     </section>
