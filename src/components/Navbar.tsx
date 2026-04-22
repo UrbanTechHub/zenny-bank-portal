@@ -96,11 +96,37 @@ const Navbar = () => {
             )}
           </div>
         </div>
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-md">
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 rounded-md"
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-menu"
+        >
           {mobileMenuOpen ? <X className={cn("w-6 h-6", scrolled ? "text-bank-blue" : "text-white")} /> : <Menu className={cn("w-6 h-6", scrolled ? "text-bank-blue" : "text-white")} />}
         </button>
       </div>
-      <div className={cn("md:hidden fixed inset-0 z-[60] bg-bank-darkBlue transform transition-transform duration-300 ease-in-out", mobileMenuOpen ? "translate-x-0" : "translate-x-full")}>
+      {/* Backdrop */}
+      <div
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+        className={cn(
+          "md:hidden fixed inset-0 z-[55] bg-black/50 transition-opacity duration-300 ease-in-out",
+          mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+      />
+      <div
+        id="mobile-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!mobileMenuOpen}
+        className={cn(
+          "md:hidden fixed inset-x-0 top-0 z-[60] bg-bank-darkBlue shadow-2xl transform-gpu transition-all duration-300 ease-in-out h-[100dvh]",
+          mobileMenuOpen
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0 pointer-events-none"
+        )}
+      >
         <div className="flex flex-col h-full">
           <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3">
             <span className="inline-flex bg-white rounded-md px-2 py-1 shrink-0">
