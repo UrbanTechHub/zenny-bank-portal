@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Wallet, Landmark, ShieldCheck, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const HeroSection = () => {
+  const { t } = useLanguage();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -19,10 +21,10 @@ const HeroSection = () => {
   }, []);
 
   const featureItems = [
-    { icon: <Wallet size={20} />, text: "Ngân Hàng Trực Tuyến" },
-    { icon: <Landmark size={20} />, text: "Giải Pháp Đầu Tư" },
-    { icon: <ShieldCheck size={20} />, text: "Giao Dịch An Toàn" },
-    { icon: <DollarSign size={20} />, text: "Ngoại Hối" },
+    { icon: <Wallet size={20} />, text: t('hero.feature.online') },
+    { icon: <Landmark size={20} />, text: t('hero.feature.invest') },
+    { icon: <ShieldCheck size={20} />, text: t('hero.feature.secure') },
+    { icon: <DollarSign size={20} />, text: t('hero.feature.forex') },
   ];
 
   return (
@@ -39,15 +41,15 @@ const HeroSection = () => {
           <div className="lg:col-span-7 text-left">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <div className="inline-block px-3 py-1 mb-6 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-                <span className="text-white/80 text-sm">Dịch Vụ Ngân Hàng Hàng Đầu Việt Nam</span>
+                <span className="text-white/80 text-sm">{t('hero.badge')}</span>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white leading-tight">
-                Tương Lai Tài Chính <br /><span className="text-bank-gold">Bắt Đầu Từ Đây</span>
+                {t('hero.h1.line1')} <br /><span className="text-bank-gold">{t('hero.h1.line2')}</span>
               </h1>
-              <p className="text-lg text-white/80 mb-8 max-w-xl leading-relaxed">Trải nghiệm thế hệ ngân hàng tiếp theo với công nghệ tiên tiến và dịch vụ cá nhân hóa phù hợp với nhu cầu của bạn.</p>
+              <p className="text-lg text-white/80 mb-8 max-w-xl leading-relaxed">{t('hero.desc')}</p>
               <div className="flex flex-wrap gap-4">
-                <Button className="px-6 py-6 bg-bank-gold hover:bg-bank-gold/90 text-bank-blue font-semibold rounded-lg animate-shimmer bg-[linear-gradient(110deg,#FFD700,45%,#FFF3B0,55%,#FFD700)] bg-[length:200%_100%] flex items-center gap-2">Mở Tài Khoản <ArrowRight className="w-5 h-5" /></Button>
-                <Button variant="outline" className="px-6 py-6 bg-transparent border-white text-white hover:bg-white/10 font-semibold rounded-lg">Khám Phá Dịch Vụ</Button>
+                <Button className="px-6 py-6 bg-bank-gold hover:bg-bank-gold/90 text-bank-blue font-semibold rounded-lg animate-shimmer bg-[linear-gradient(110deg,#FFD700,45%,#FFF3B0,55%,#FFD700)] bg-[length:200%_100%] flex items-center gap-2">{t('hero.openAccount')} <ArrowRight className="w-5 h-5" /></Button>
+                <Button variant="outline" className="px-6 py-6 bg-transparent border-white text-white hover:bg-white/10 font-semibold rounded-lg">{t('hero.exploreServices')}</Button>
               </div>
               <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
                 {featureItems.map((item, index) => (
@@ -67,19 +69,19 @@ const HeroSection = () => {
               </div>
               <div className="bank-card bg-gradient-to-br from-bank-blue to-bank-darkBlue p-6 md:p-8 rounded-2xl relative z-10 border border-white/10">
                 <div className="flex justify-between items-start">
-                  <div><p className="text-white/60 text-sm">Việt Trust Cao Cấp</p><h3 className="text-xl font-semibold text-white mt-1">Thẻ Visa Vàng</h3></div>
+                  <div><p className="text-white/60 text-sm">{t('hero.card.tier')}</p><h3 className="text-xl font-semibold text-white mt-1">{t('hero.card.name')}</h3></div>
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-bank-gold to-yellow-500 flex items-center justify-center"><Landmark className="text-white w-6 h-6" /></div>
                 </div>
-                <div className="mt-10"><p className="text-white/60 text-xs">Số Thẻ</p><p className="text-white text-lg font-medium tracking-widest mt-1">**** **** **** 8529</p></div>
+                <div className="mt-10"><p className="text-white/60 text-xs">{t('hero.card.number')}</p><p className="text-white text-lg font-medium tracking-widest mt-1">**** **** **** 8529</p></div>
                 <div className="mt-6 flex justify-between">
-                  <div><p className="text-white/60 text-xs">Chủ Thẻ</p><p className="text-white text-base mt-1">NGUYỄN VĂN A</p></div>
-                  <div><p className="text-white/60 text-xs">Hết Hạn</p><p className="text-white text-base mt-1">05/26</p></div>
+                  <div><p className="text-white/60 text-xs">{t('hero.card.holder')}</p><p className="text-white text-base mt-1">NGUYỄN VĂN A</p></div>
+                  <div><p className="text-white/60 text-xs">{t('hero.card.expires')}</p><p className="text-white text-base mt-1">05/26</p></div>
                 </div>
                 <div className="absolute bottom-8 right-8"><svg className="w-12 h-12" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#FFD700" fillOpacity="0.2" /><circle cx="24" cy="24" r="16" fill="#FFD700" fillOpacity="0.4" /><circle cx="24" cy="24" r="12" fill="#FFD700" /></svg></div>
               </div>
               <div className="bank-card absolute top-[-20px] left-[-20px] bg-gradient-to-br from-bank-red to-pink-700 p-6 md:p-8 rounded-2xl border border-white/10 transform -rotate-6 z-0 opacity-70">
                 <div className="flex justify-between items-start opacity-50">
-                  <div><p className="text-white/60 text-sm">Việt Trust</p><h3 className="text-xl font-semibold text-white mt-1">Bạch Kim</h3></div>
+                  <div><p className="text-white/60 text-sm">Việt Trust</p><h3 className="text-xl font-semibold text-white mt-1">{t('hero.card.platinum')}</h3></div>
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center"><Landmark className="text-white w-6 h-6" /></div>
                 </div>
               </div>
