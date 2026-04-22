@@ -84,7 +84,7 @@ const Navbar = () => {
           {mobileMenuOpen ? <X className={cn("w-6 h-6", scrolled ? "text-bank-blue" : "text-white")} /> : <Menu className={cn("w-6 h-6", scrolled ? "text-bank-blue" : "text-white")} />}
         </button>
       </div>
-      <div className={cn("md:hidden fixed inset-0 z-50 bg-bank-darkBlue transform transition-transform duration-300 ease-in-out", mobileMenuOpen ? "translate-x-0" : "translate-x-full")}>
+      <div className={cn("md:hidden fixed inset-0 z-[60] bg-bank-darkBlue transform transition-transform duration-300 ease-in-out", mobileMenuOpen ? "translate-x-0" : "translate-x-full")}>
         <div className="flex flex-col h-full">
           <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3">
             <span className="inline-flex bg-white rounded-md px-2 py-1 shrink-0">

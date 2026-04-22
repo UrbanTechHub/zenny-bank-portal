@@ -21,7 +21,7 @@ const Contact = () => {
   };
 
   const contactInfo = [
-    { icon: Phone, title: language === 'vi' ? 'Điện Thoại' : 'Phone', lines: ['+84 (28) 1234 5678', '+84 (28) 8765 4321'] },
+    { icon: Phone, title: language === 'vi' ? 'Điện Thoại' : 'Phone', lines: ['+84 (28) VIETTRUST', '+84 (28) VIETTRUST'] },
     { icon: Mail, title: 'Email', lines: ['support@viettrusttaichinh.online'] },
     { icon: MapPin, title: language === 'vi' ? 'Địa Chỉ' : 'Address', lines: [language === 'vi' ? '123 Đường Tài Chính, Quận 1' : '123 Finance Street, District 1', 'TP. Hồ Chí Minh, Việt Nam'] },
     { icon: Clock, title: language === 'vi' ? 'Giờ Làm Việc' : 'Working Hours', lines: [language === 'vi' ? 'Thứ 2 - Thứ 6: 8:00 - 17:00' : 'Mon - Fri: 8:00 - 17:00', language === 'vi' ? 'Thứ 7: 8:00 - 12:00' : 'Sat: 8:00 - 12:00'] },
