@@ -27,6 +27,22 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Lock body scroll and manage focus when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setMobileMenuOpen(false);
+      };
+      window.addEventListener('keydown', onKey);
+      return () => {
+        document.body.style.overflow = original;
+        window.removeEventListener('keydown', onKey);
+      };
+    }
+  }, [mobileMenuOpen]);
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
