@@ -20,7 +20,7 @@ const Footer = () => (
           </div>
           <div className="space-y-4">
             <div className="flex items-start"><MapPin className="w-5 h-5 text-bank-gold mr-3 mt-0.5" /><p className="text-white/70">123 Đường Tài Chính, Quận 1<br />TP. Hồ Chí Minh, Việt Nam</p></div>
-            <div className="flex items-center"><Phone className="w-5 h-5 text-bank-gold mr-3" /><p className="text-white/70">+84 (28) 1234 5678</p></div>
+            <div className="flex items-center"><Phone className="w-5 h-5 text-bank-gold mr-3" /><p className="text-white/70">+84 (28) VIETTRUST</p></div>
             <div className="flex items-center"><Mail className="w-5 h-5 text-bank-gold mr-3" /><p className="text-white/70">support@viettrusttaichinh.online</p></div>
           </div>
           <div className="mt-8">
