@@ -84,11 +84,15 @@ const Navbar = () => {
           {mobileMenuOpen ? <X className={cn("w-6 h-6", scrolled ? "text-bank-blue" : "text-white")} /> : <Menu className={cn("w-6 h-6", scrolled ? "text-bank-blue" : "text-white")} />}
         </button>
       </div>
-      <div className={cn("md:hidden fixed inset-0 z-50 bg-black transform transition-transform duration-300 ease-in-out", mobileMenuOpen ? "translate-x-0" : "translate-x-full")}>
+      <div className={cn("md:hidden fixed inset-0 z-50 bg-bank-darkBlue transform transition-transform duration-300 ease-in-out", mobileMenuOpen ? "translate-x-0" : "translate-x-full")}>
         <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-white/10 flex items-center justify-between">
-            <span className="inline-flex bg-white rounded-md px-2 py-1"><img src="/viettrustbank-logo.png" alt="VietTrustBank" className="h-7 w-auto" /></span>
-            <button onClick={() => setMobileMenuOpen(false)} className="p-2"><X className="w-6 h-6 text-white" /></button>
+          <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3">
+            <span className="inline-flex bg-white rounded-md px-2 py-1 shrink-0">
+              <img src="/viettrustbank-logo.png" alt="VietTrustBank" className="h-6 w-auto" />
+            </span>
+            <button onClick={() => setMobileMenuOpen(false)} className="p-2 shrink-0" aria-label="Close menu">
+              <X className="w-6 h-6 text-white" />
+            </button>
           </div>
           <div className="flex-1 overflow-y-auto py-4 px-4">
             <nav className="flex flex-col space-y-4">
@@ -107,17 +111,17 @@ const Navbar = () => {
                   <LayoutDashboard className="w-4 h-4 mr-1" /> {t('nav.dashboard')}
                 </Button>
                 {isAdmin && (
-                  <Button onClick={() => { navigate('/admin'); setMobileMenuOpen(false); }} variant="outline" className="w-full border-white/30 text-white hover:bg-white/10">
+                  <Button onClick={() => { navigate('/admin'); setMobileMenuOpen(false); }} variant="outline" className="w-full border-white/30 bg-transparent text-white hover:bg-transparent hover:text-white">
                     <Shield className="w-4 h-4 mr-1" /> Admin
                   </Button>
                 )}
-                <Button onClick={() => { handleSignOut(); setMobileMenuOpen(false); }} variant="outline" className="w-full border-white/30 text-white hover:bg-white/10">
+                <Button onClick={() => { handleSignOut(); setMobileMenuOpen(false); }} variant="outline" className="w-full border-white/30 bg-transparent text-white hover:bg-transparent hover:text-white">
                   <LogOut className="w-4 h-4 mr-1" /> {t('nav.logout')}
                 </Button>
               </>
             ) : (
               <>
-                <Button onClick={() => { navigate('/signup'); setMobileMenuOpen(false); }} variant="outline" className="w-full border-white/30 text-white hover:bg-white/10">
+                <Button onClick={() => { navigate('/signup'); setMobileMenuOpen(false); }} variant="outline" className="w-full border-white/30 bg-transparent text-white hover:bg-transparent hover:text-white">
                   {t('nav.signup')}
                 </Button>
                 <Button onClick={() => { navigate('/login'); setMobileMenuOpen(false); }} className="w-full bg-gradient-to-r from-bank-gold to-amber-500 text-bank-darkBlue font-bold">
